@@ -4,6 +4,8 @@ const Log = require("./Log")
 const SapsarErrorPage = require("./SapsarErrorPage")
 const ShipTouch = require("../touch/ShipTouch")
 
+const getComplexLevel = require("./getComplexLevel")
+
 
 const cacheFormat = {
     css: {
@@ -73,6 +75,8 @@ let cache = JSON.parse(JSON.stringify(cacheFormat))
 
 
 
+
+
 function handleCSS(page){
     let struct = ''
 
@@ -113,8 +117,32 @@ function handleCSS(page){
 }
 
 
+function addComplexCSS(component){
+    if (cache.css[component]){
+        return style(
+            cache.css[component]
+        )
+    }
+    else {
+        return ""
+    }
+}
+
+
 
 function renderPageStruct(page, content){
+
+    const compexCSS = getComplexLevel(content, ';levelCSS;', ';/levelCSS;')
+    let complexCSS = ""
+    for (let x = 0; x < complexCSS.content.length; x++) {
+        compexCSS += addComplexCSS(complexCSS.content[x])
+    }
+
+
+
+
+    
+
     return `
         ${doctype()}
             ${html(
@@ -126,10 +154,8 @@ function renderPageStruct(page, content){
                     handleCSS(page)
                 ),
                 body(
-                    content
+                    compexCSS.edited
                 ),
-
-                
                 {
                     lang: "en"
                 },
