@@ -138,25 +138,23 @@ async function renderPageStruct(page, content){
         finalComplexCSS += addComplexCSS(complexCSS.content[x])
     }
 
-    
-
     return `
         ${doctype()}
-            ${html(
-                head(
-                    meta({name:"viewport",content:"width=device-width, initial-scale=1.0"}),
-                    meta({charset:"UTF-8"}),
-                    handleHead(page),
-                    handleCSS(page),
-                    finalComplexCSS
-                ),
-                body(
-                    complexCSS.edited
-                ),
-                {
-                    lang: "en"
-                },
-            )}
+        ${html(
+            head(
+                meta({name:"viewport",content:"width=device-width, initial-scale=1.0"}),
+                meta({charset:"UTF-8"}),
+                handleHead(page),
+                handleCSS(page),
+                finalComplexCSS
+            ),
+            body(
+                complexCSS.edited
+            ),
+            {
+                lang: "en"
+            },
+        )}
     `
 }
 
