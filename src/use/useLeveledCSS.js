@@ -1,4 +1,4 @@
-async function useLeveledCSS(component) {
+function useLeveledCSS(component) {
     return `;levelCSS;${component};/levelCSS;`
 }
 

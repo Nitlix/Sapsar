@@ -130,31 +130,28 @@ function addComplexCSS(component){
 
 
 
-function renderPageStruct(page, content){
+async function renderPageStruct(page, content){
 
-    const compexCSS = getComplexLevel(content, ';levelCSS;', ';/levelCSS;')
-    let complexCSS = ""
+    const complexCSS = getComplexLevel(content, ';levelCSS;', ';/levelCSS;')
+    let finalComplexCSS = ""
     for (let x = 0; x < complexCSS.content.length; x++) {
-        compexCSS += addComplexCSS(complexCSS.content[x])
+        finalComplexCSS += addComplexCSS(complexCSS.content[x])
     }
-
-
-
 
     
 
     return `
         ${doctype()}
             ${html(
-
                 head(
                     meta({name:"viewport",content:"width=device-width, initial-scale=1.0"}),
                     meta({charset:"UTF-8"}),
                     handleHead(page),
-                    handleCSS(page)
+                    handleCSS(page),
+                    finalComplexCSS
                 ),
                 body(
-                    compexCSS.edited
+                    complexCSS.edited
                 ),
                 {
                     lang: "en"

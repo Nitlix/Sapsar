@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 
 async function getCSS(css) {
     return await fs.readFileSync(
