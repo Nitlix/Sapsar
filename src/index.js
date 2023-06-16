@@ -86,9 +86,7 @@ async function Build() {
 
 
 
-
-
-Build();
+module.exports = Build;
 
 // async function onUpdate(path) {
 //     await listener.close();

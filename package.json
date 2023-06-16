@@ -7,7 +7,7 @@
 
     "./build": "./src/index.js"
   },
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Sapsar is a lightspeed web framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
   "main": "src/exports.js",
   "scripts": {},
