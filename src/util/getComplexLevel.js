@@ -8,15 +8,14 @@ function getComplexLevel(str, startTag, endTag) {
 		const content = match[1];
 		if (!extractedContent.includes(content)) {
 			extractedContent.push(content);
-			newStr = newStr.replace(match[0], '');
 		}
+		newStr = newStr.replace(match[0], '');
 	}
 
 	return {
 		content: extractedContent,
 		edited: newStr
 	};
-
 }
 
 module.exports = getComplexLevel;

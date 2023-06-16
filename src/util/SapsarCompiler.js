@@ -16,7 +16,6 @@ const cacheFormat = {
     },
 
 
-    layout: null,
     pageCompilers: {
 
     },
@@ -168,11 +167,7 @@ async function SapsarCompiler(page, data){
 
         let staticPage = false;
 
-        // import layout
-        if (!cache.layout) {
-            Log.compiler(`Generating LAYOUT CACHE for (${page})...`)
-            cache.layout = (await import(`../../../../pages/_layout.js`)).default
-        }
+        //no layout
 
         // import page
         if (!cache.pageCompilers[page]) {

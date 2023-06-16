@@ -5,7 +5,7 @@
     "./use/*": "./src/use/*.js",
     "./basic/*": "./src/basic/*.js"
   },
-  "version": "0.0.6",
+  "version": "0.1.3",
   "description": "Sapsar is a lightspeed web framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
   "main": "src/exports.js",
   "scripts": {},
