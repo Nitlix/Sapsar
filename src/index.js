@@ -2,7 +2,7 @@ const Log = require('./util/Log.js');
 Log.sapsar("Starting Sapsar...")
 
 
-const createServer = require('./util/CreateServer')
+const createServer = require('./util/CreateServer.js')
 Log.sapsar("Created a server instance...")
 
 const ScanDirectory = require('./util/ScanDirectory.js');
@@ -11,7 +11,7 @@ const ScanDirectory = require('./util/ScanDirectory.js');
 
 
 const path = require('path');
-const { SapsarCompiler, SapsarUnknownPageHandler } = require('./util/SapsarCompiler');
+const { SapsarCompiler, SapsarUnknownPageHandler } = require('./util/SapsarCompiler.js');
 
 
 
