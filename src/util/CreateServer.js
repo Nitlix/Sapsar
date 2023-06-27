@@ -3,14 +3,9 @@ const cors = require('cors');
 
 
 const path = require('path');
-const { fileURLToPath } = require('url');
 
 
 function createServer(useCors = "*") {
-
-
-   
-
     const app = express();
 
     app.disable('x-powered-by');

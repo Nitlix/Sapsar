@@ -1,5 +1,5 @@
 const Combine = require("../basic/Combine")
-const { head, title, style, body, div, h1, h4, p } = require("../base/index")
+const { head, title, style, body, div, h1, h4, p, img } = require("../base/index")
 const SapsarLogo = require("./SapsarLogo")
 
 
@@ -55,8 +55,8 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
                             background: linear-gradient(90deg, rgba(238,146,11,1) 0%, rgba(238,0,68,1) 100%);
                         }
 
-                        svg {
-                            width: 22rem;
+                        img {
+                            width: 14rem;
                         }
 
 
@@ -72,7 +72,11 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
             ),
             body(
                 div(
-                    SapsarLogo,
+                    img(
+                        {
+                            src: "https://cdn.nitlix.pro/sapsar/logo_plain.webp"
+                        }
+                    ),
                     div(
                         div(
                             h4(
@@ -94,7 +98,7 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
                     ),
                     {
                         class: "flex",
-                        style: "gap: 2rem; align-items: center;"
+                        style: "gap: .5rem; align-items: center;"
                     }
                 )
                 
