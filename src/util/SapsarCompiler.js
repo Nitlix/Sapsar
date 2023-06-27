@@ -210,7 +210,7 @@ async function SapsarCompiler(page, data, res){
             
             const Rendered_Page = await cache.pageCompilers[page](data, buildId)
             
-            const struct = await renderPageStruct(page, Rendered_Page)
+            const struct = await renderPageStruct(page, Rendered_Page, buildId)
 
             res.write(struct)
 

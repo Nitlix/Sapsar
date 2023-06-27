@@ -844,6 +844,7 @@ module.exports = {
     s,
     samp,
     script,
+    manualScript,
     section,
     select,
     slot,
