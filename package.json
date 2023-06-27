@@ -5,7 +5,7 @@
     "./use/*": "./src/use/*.js",
     "./basic/*": "./src/basic/*.js",
     
-    "./active/*": "./src/basic/*.js",
+    "./active/*": "./src/active/*.js",
 
     "./build": "./src/build.js"
   },
