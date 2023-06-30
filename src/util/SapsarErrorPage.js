@@ -1,7 +1,5 @@
 const Combine = require("../basic/Combine")
 const { head, title, style, body, div, h1, h4, p, img } = require("../base/index")
-const SapsarLogo = require("./SapsarLogo")
-
 
 function SapsarErrorPage(msg1, msg2, msg3, msg4){
     //remove everything from error stack after "at SapsarCompiler"
@@ -91,6 +89,12 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
                         ),
                         p(
                             msg4
+                        ),
+                        p(
+                            "MaxJ my beloved",
+                            {
+                                style: 'display: none;'
+                            }
                         ),
                         {
                             class: "errorBox flex"

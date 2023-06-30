@@ -1,7 +1,7 @@
 const { cache } = require('../util/SapsarCompiler')
 
 function useStaticPage(page){
-    cache.staticPageRequests.push(page);
+    cache.static.requests.push(page);
     return true;
 }
 

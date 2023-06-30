@@ -13,6 +13,9 @@ const Log = {
     buildError: (error)=>{
         //red color 
         console.log(`\x1b[31m[Sapsar Build Error]\x1b[0m ${error}`)
+    },
+    router: (error)=> {
+        console.log(`\x1b[31m[Sapsar Router Error]\x1b[0m ${error}`)
     }
 }
 

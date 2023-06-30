@@ -1,4 +1,4 @@
-function parseArgs(args) {
+function ParseArgs(args) {
     let content = ""
     let props = {};
 
@@ -26,4 +26,4 @@ function parseArgs(args) {
 }
 
 
-module.exports = parseArgs;
+module.exports = ParseArgs;

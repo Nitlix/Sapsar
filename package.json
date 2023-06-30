@@ -4,12 +4,10 @@
     "./base": "./src/base/index.js",
     "./use/*": "./src/use/*.js",
     "./basic/*": "./src/basic/*.js",
-    
     "./active/*": "./src/active/*.js",
-
     "./build": "./src/build.js"
   },
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Sapsar is a lightspeed web framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
   "main": "src/exports.js",
   "scripts": {},
@@ -18,7 +16,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "path": "^0.12.7",
-    "url": "^0.11.1"
+    "lixtools": "^1.0.0",
+    "path": "^0.12.7"
   }
 }

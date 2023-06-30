@@ -1,5 +1,5 @@
-function activeCSS(component) {
-    return `;activeCSS;${component};/activeCSS;`
+function ActiveCSS(component) {
+    return `;ActiveCSS;${component};/ActiveCSS;`
 }
 
-module.exports = activeCSS;
+module.exports = ActiveCSS;

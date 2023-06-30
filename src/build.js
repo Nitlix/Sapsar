@@ -7,10 +7,15 @@ Log.sapsar("Created a server instance...")
 
 const ScanDirectory = require('./util/ScanDirectory.js');
 
+const ListCycle = require('lixtools/list/cycle')
+
 //go through all pages in /pages
 
 
+
+
 const path = require('path');
+
 const { SapsarCompiler, SapsarUnknownPageHandler } = require('./util/SapsarCompiler.js');
 const { serveStream } = require('./util/SapsarStream.js');
 
@@ -34,40 +39,81 @@ const files = ScanDirectory(pagesDirectory);
 
 
 
-files.forEach(async (file) => {
+const NormalPages = [];
+const DynamicPages = [];
 
-
-    // Add this file to the list of files
+// Map pages into dynamic and normal
+ListCycle(files, (file) => {
     if (path.extname(file) != ".js") return;
-    if (file == "_layout.js") return;
-
-
-    let originalName = file.split(".js")[0];
-    let name = file.split(".js")[0];
-
     
-    if (name == "index") name = "";
-    if (name == "_layout") return;
+    let OriginalName = file.split(".js")[0];
+    let AccessName = file.split(".js")[0];
+
+    if (AccessName.endsWith("index")) {
+        AccessName = AccessName.split("index")[0];
+    }
+
+    if (AccessName.includes(";")) {
+        // Dynamic page
+
+        AccessName = AccessName.split(";").join(":")
+
+        DynamicPages.push({
+            original: OriginalName,
+            access: AccessName
+        }
+        )
+    }
+    else {
+        NormalPages.push({
+            original: OriginalName,
+            access: AccessName
+        }
+        )
+    }
+})
 
 
-    app.get(`/${name}`, async (req, res) => {
-        // const loadStart = Date.now();
-        await SapsarCompiler(originalName, req, res)
-        // console.log(`Rendered page ${originalName} in `, Math.round(Date.now() - loadStart), "ms")
+
+
+
+// Router for normal pages
+
+ListCycle(NormalPages, async (data) => {
+    // route
+    app.get(`/${data.access}`, async (req, res) => {
+        await SapsarCompiler(data.original, req, res)
         return
     })
+});
 
 
-    app.get(`/_sapsar/stream/:stream`, (req, res) => {
-        const stream = req.params.stream;
-        const data = serveStream(stream)
-        res.status(200).end(data)
+
+ListCycle(DynamicPages, async (data) => {
+
+    //route 
+    const split = data.access.split("/")
+    const all = []
+
+    let stop = false;
+
+    ListCycle(split, (query)=>{
+        if (all.includes(query)){
+            stop = true;
+        }
     })
 
-    
+    if (stop) {
+        Log.router(`The main router could not route this query scheme: ${data.access}. Please change your routing format so that the paths being accessed are not the same.`)
+        return;
+    }
+
+    app.get(`/${data.access}`, async (req, res) => {
+        await SapsarCompiler(data.original, req, res, true)
+    })
+})
 
 
-});
 
 
 app.all('*', async (req, res) => {

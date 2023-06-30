@@ -23,16 +23,15 @@ const cacheFormat = {
     head: {
         '*': ' '
     },
-    activeHead: {
-        
-    },
-    pages: {
-
-    },
-    staticPageRequests: [],
-
+    
     touch: {
 
+    },
+
+    static: {
+        pages: {},
+        useQueries: [],
+        requests: []
     },
 
     404: null
@@ -53,10 +52,6 @@ function handleHead(page){
 
     if (cache.head[page] != undefined){
         content += cache.head[page]
-    }
-
-    if (cache.activeHead[page] != undefined){
-        content += cache.activeHead[page]
     }
 
     if (cache.head['*'] != undefined){
@@ -97,10 +92,16 @@ function addComplexCSS(component){
 
 async function renderPageStruct(page, content, build){
 
-    const complexCSS = getComplexLevel(content, ';activeCSS;', ';/activeCSS;')
+    const complexCSS = getComplexLevel(content, ';ActiveCSS;', ';/ActiveCSS;')
     let finalComplexCSS = ""
     for (let x = 0; x < complexCSS.content.length; x++) {
         finalComplexCSS += addComplexCSS(complexCSS.content[x])
+    }
+
+    const activeHeadData = getComplexLevel(complexCSS.edited, ';ActiveHead;', ';/ActiveHead;')
+    let finalActiveHead = ""
+    for (let x = 0; x < activeHeadData.content.length; x++) {
+        finalActiveHead += activeHeadData.content[x]
     }
 
     
@@ -113,12 +114,13 @@ async function renderPageStruct(page, content, build){
                 meta({charset:"UTF-8"}),
                 handleHead(page),
                 finalComplexCSS,
-                manualScript(`
+                finalActiveHead,
+                `<script data-sapsar>
                     const build = {id: "${build}"}
-                `)
+                </script>`
             ),
             body(
-                complexCSS.edited
+                activeHeadData.edited
             ),
             {
                 lang: "en"
@@ -132,24 +134,42 @@ async function renderPageStruct(page, content, build){
 
 
 // Compiler Code
-async function SapsarCompiler(page, data, res){
-    if (!cache.pages[page]) {
+async function SapsarCompiler(page, req, res, dynamic=false){
+    const withQuery = req.originalUrl
+    const path = req.path
     
-        let staticPage = false;
 
-        //no layout
+    // Serve static page
 
+    if (cache.static.pages[path] || cache.static.pages[withQuery]) {
+
+        if (cache.static.pages[withQuery]){
+            res.end(
+                cache.static.pages[withQuery]
+            )
+        }
+        else {
+            res.end(
+                cache.static.pages[path]
+            )
+        }
+    }
+
+    else {
+
+
+        // Dynamic page, or generate static page    
+    
         // import page
         if (!cache.pageCompilers[page]) {
             Log.compiler(`Generating PAGE FUNCTION CACHE for ${page}...`)
-
             try {
                 cache.pageCompilers[page] = (await import(`../../../../pages/${page}.js`)).default
             }
             catch(e){
                 Log.buildError(`Error trying to build page: ${page}`)
                 res.status(400).end(SapsarErrorPage(
-                    `Something went wrong caching page: ${page}`, 
+                    `Something went wrong caching page function: ${page}`, 
                     e.name,
                     e.message,
                     e.stack
@@ -159,56 +179,65 @@ async function SapsarCompiler(page, data, res){
 
 
 
-        // //import component cache
-
-        // if (!cache.components[page]) {
-        //     Log.compiler(`Generating COMPONENT CACHE for ${page}...`)
-        //     cache.components[page] = {}
-        // }
-        
-        //import head cache
-
         if (!cache.head[page]) {
             Log.compiler(`Generating HEAD CACHE for ${page}...`)
             cache.head[page] = ' '
         }
 
-        //import active head cache
-
-        if (!cache.activeHead[page]) {
-            Log.compiler(`Generating ACTIVE HEAD CACHE for ${page}...`)
-            cache.activeHead[page] = ' '
-        }
 
 
-        
-        if (cache.staticPageRequests.includes(page)) {
-            staticPage = true;
-        }
 
-       
+        // Static page 
+
+        if (cache.static.requests.includes(page)){
+            let finalContent = ""
+
+            Log.compiler(`Generating STATIC PAGE CACHE for ${page}...`)
+            
+            const Rendered_Page = await cache.pageCompilers[page](req, buildId, req.params)
+
+            const struct = await renderPageStruct(page, Rendered_Page, buildId)
+
+            res.write(struct)
+            finalContent += struct
+
+
+            //post render
+            //run active build scripts
+
             
 
+            let activeBuildProcesses = getBuildProcesses(buildId)
+            for (let x = 0; x < activeBuildProcesses.length; x++) {
+                let processData = activeBuildProcesses[x]
+
+                res.write(await processData.process(processData.args))
+                finalContent += struct;
+            }
+
+            // everything executed
+            // ending response
+            removeBuild(buildId)
+            
+            res.end()
+
+            
+            cache.static.pages[path] = struct
 
 
-        let struct = null;
-
-        if (staticPage){
-            Log.compiler(`Generating STATIC PAGE CACHE for ${page}...`)
-            const Rendered_Page = await cache.pageCompilers[page](data)
-            struct = await renderPageStruct(page, Rendered_Page)
-
-            cache.pages[page] = struct
-
-            res.status(200).end(struct)
+            // End page render
+            // End page caching
+            return
         }
        
 
         try {
+            // New page render
+
             const buildId = createUniqueBuild(res)
 
             
-            const Rendered_Page = await cache.pageCompilers[page](data, buildId)
+            const Rendered_Page = await cache.pageCompilers[page](req, buildId, req.params)
             
             const struct = await renderPageStruct(page, Rendered_Page, buildId)
 
@@ -234,6 +263,8 @@ async function SapsarCompiler(page, data, res){
             res.end()
 
         }
+
+        
         catch(err){
             Log.renderError(err)
             
@@ -249,14 +280,6 @@ async function SapsarCompiler(page, data, res){
         }
 
 
-
-
-
-    }
-
-    else {
-        // returned cached page
-        return cache.pages[page]
     }
 }
 
@@ -291,4 +314,6 @@ module.exports = {
     clearCacheData
 }
 
+
+//MaxJ my beloved ☠️
 Log.compiler("Sapsar Compiler loaded and ready for action.")
