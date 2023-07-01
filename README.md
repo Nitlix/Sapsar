@@ -1,4 +1,4 @@
-# Sapsar @0.2.0 [![Node.JS](https://img.shields.io/badge/NODE.JS-blueviolet?style=for-the-badge)](http://modejs.org/) [![MIT License](https://img.shields.io/badge/LICENSE-MIT-brightgreen?style=for-the-badge)]
+# Sapsar @0.2.2 [![Node.JS](https://img.shields.io/badge/NODE.JS-blueviolet?style=for-the-badge)](http://modejs.org/) [![MIT License](https://img.shields.io/badge/LICENSE-MIT-brightgreen?style=for-the-badge)]
 
 <img src="https://cdn.nitlix.pro/sapsar/logo_plain.webp" width=500>
 <br><br><br>

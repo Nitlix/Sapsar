@@ -9,15 +9,20 @@ const ScanDirectory = require('./util/ScanDirectory.js');
 
 const ListCycle = require('lixtools/list/cycle')
 
-//go through all pages in /pages
+const CachePage = require('./util/CachePage.js');
+
+const SapsarErrorPage = require('./util/SapsarErrorPage.js');
+
 
 
 
 
 const path = require('path');
 
-const { SapsarCompiler, SapsarUnknownPageHandler } = require('./util/SapsarCompiler.js');
-const { serveStream } = require('./util/SapsarStream.js');
+const {
+    SapsarCompiler,
+    SapsarUnknownPageHandler
+} = require('./util/SapsarCompiler.js');
 
 
 
@@ -28,115 +33,156 @@ let listener = null;
 const pagesDirectory = path.join(__dirname, '../../../pages');
 
 
+async function map() {
 
-Log.sapsar("Mapping your pages...")
+    Log.sapsar("Mapping your pages...")
 
-const startTime = Date.now();
+    const startTime = Date.now();
 
-const app = createServer();
-const files = ScanDirectory(pagesDirectory);
-
-
+    const app = createServer();
+    const files = ScanDirectory(pagesDirectory);
 
 
-const NormalPages = [];
-const DynamicPages = [];
 
-// Map pages into dynamic and normal
-ListCycle(files, (file) => {
-    if (path.extname(file) != ".js") return;
-    
-    let OriginalName = file.split(".js")[0];
-    let AccessName = file.split(".js")[0];
 
-    if (AccessName.endsWith("index")) {
-        AccessName = AccessName.split("index")[0];
-    }
+    const NormalPages = [];
+    const DynamicRoutes = [];
 
-    if (AccessName.includes(";")) {
-        // Dynamic page
+    // Map pages into dynamic and normal
+    for (let x = 0; x < files.length; x++) {
+        const file = files[x];
 
-        AccessName = AccessName.split(";").join(":")
+        if (path.extname(file) != ".js") return;
 
-        DynamicPages.push({
-            original: OriginalName,
-            access: AccessName
+        let OriginalName = file.split(".js")[0];
+        let AccessName = file.split(".js")[0];
+
+        if (AccessName.endsWith("index")) {
+            AccessName = AccessName.split("index")[0];
         }
-        )
-    }
-    else {
-        NormalPages.push({
-            original: OriginalName,
-            access: AccessName
+
+        if (AccessName.includes(";")) {
+            // Dynamic page
+
+            AccessName = AccessName.split(";").join(":")
+
+            const split = AccessName.split("/")
+            const all = []
+
+            let stop = false;
+
+            ListCycle(split, (query) => {
+                if (all.includes(query)) {
+                    stop = true;
+                }
+            })
+
+            if (stop) {
+                Log.router(`The main router could not route this query scheme: ${data.access}. Please change your routing format so that the paths being accessed are not the same.`)
+                return;
+            }
+
+            DynamicRoutes.push({
+                original: OriginalName,
+                access: AccessName
+            })
+        } else {
+            NormalPages.push({
+                original: OriginalName,
+                access: AccessName
+            })
         }
-        )
     }
-})
 
 
 
 
 
-// Router for normal pages
+    // Router for normal pages
 
-ListCycle(NormalPages, async (data) => {
-    // route
-    app.get(`/${data.access}`, async (req, res) => {
-        await SapsarCompiler(data.original, req, res)
-        return
-    })
-});
+    for (let x = 0; x < NormalPages.length; x++) {
+        const data = NormalPages[x];
 
+        // route
+        try {
+            //generate cache
+            await CachePage(data.original)
 
+            app.get(`/${data.access}`, async (req, res) => {
+                await SapsarCompiler(data.original, req, res)
+                return
+            })
+        } catch (e) {
+            Log.buildError(`Error trying to save page function: ${data.original}`)
 
-ListCycle(DynamicPages, async (data) => {
-
-    //route 
-    const split = data.access.split("/")
-    const all = []
-
-    let stop = false;
-
-    ListCycle(split, (query)=>{
-        if (all.includes(query)){
-            stop = true;
+            app.get(`/${data.access}`, async (req, res) => {
+                res.status(400).end(await SapsarErrorPage(
+                    `Something went wrong caching page function: ${data.original}`,
+                    e.name,
+                    e.message,
+                    e.stack
+                ))
+                return
+            })
         }
-    })
 
-    if (stop) {
-        Log.router(`The main router could not route this query scheme: ${data.access}. Please change your routing format so that the paths being accessed are not the same.`)
-        return;
     }
 
-    app.get(`/${data.access}`, async (req, res) => {
-        await SapsarCompiler(data.original, req, res, true)
-    })
-})
+
+
+    for (let x = 0; x < DynamicRoutes.length; x++) {
+        const data = DynamicRoutes[x];
+
+        //route dynamic
+
+        try {
+            //generate cache
+            await CachePage(data.original)
+
+            app.get(`/${data.access}`, async (req, res) => {
+                await SapsarCompiler(data.original, req, res, true)
+                return
+            })
+        } catch (e) {
+            Log.buildError(`Error trying to save dynamic route page function: ${data.original}`)
+
+            app.get(`/${data.access}`, async (req, res) => {
+                res.status(400).end(await SapsarErrorPage(
+                    `Something went wrong caching page function: ${data.original}`,
+                    e.name,
+                    e.message,
+                    e.stack
+                ))
+                return
+            })
+        }
+
+
+    }
 
 
 
 
-app.all('*', async (req, res) => {
-    const path = req.path;
-    const struct = await SapsarUnknownPageHandler(path)
-    res.status(404).send(
-        struct
-    )
-});
+    app.all('*', async (req, res) => {
+        const path = req.path;
+        await SapsarUnknownPageHandler(path, req, res)
+    });
 
 
-//set up public directory
-//../public
+    //set up public directory
+    //../public
 
 
-listener = app.listen(3000)
+    listener = app.listen(3000)
 
-Log.sapsar(`Built the app in ${Date.now() - startTime} ms. Ready to serve on http://localhost:3000`)
+    Log.sapsar(`Built the app in ${Date.now() - startTime} ms. Ready to serve on http://localhost:3000`)
+
+    return app;
+
+}
 
 
-
-
-
+const app = map();
 
 module.exports = app;
 
@@ -158,4 +204,3 @@ module.exports = app;
 // watcher.on('change', path => {
 //     onUpdate(path);
 // });
-

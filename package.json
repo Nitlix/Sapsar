@@ -3,12 +3,13 @@
   "exports": {
     "./base": "./src/base/index.js",
     "./use/*": "./src/use/*.js",
+    "./touch/*": "./src/touch/*.js",
     "./basic/*": "./src/basic/*.js",
     "./active/*": "./src/active/*.js",
     "./build": "./src/build.js"
   },
-  "version": "0.2.1",
-  "description": "Sapsar is a lightspeed web framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
+  "version": "0.2.2",
+  "description": "A lightspeed⚡, zero front-end JS📦 focused web framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
   "main": "src/exports.js",
   "scripts": {},
   "author": "Nitlix S.T.",

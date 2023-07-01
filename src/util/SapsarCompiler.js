@@ -34,7 +34,9 @@ const cacheFormat = {
         requests: []
     },
 
-    404: null
+    util: {
+        404: null
+    }
 }
 
 
@@ -72,7 +74,7 @@ let cache = JSON.parse(JSON.stringify(cacheFormat))
 
 
 
- function clearCacheData(){
+function clearCacheData(){
     cache = JSON.parse(JSON.stringify(cacheFormat))
 }
 
@@ -87,7 +89,6 @@ function addComplexCSS(component){
         return ""
     }
 }
-
 
 
 async function renderPageStruct(page, content, build){
@@ -115,9 +116,7 @@ async function renderPageStruct(page, content, build){
                 handleHead(page),
                 finalComplexCSS,
                 finalActiveHead,
-                `<script data-sapsar>
-                    const build = {id: "${build}"}
-                </script>`
+                `<script data-sapsar>const build = {id: "${build}"}</script>`
             ),
             body(
                 activeHeadData.edited
@@ -128,6 +127,9 @@ async function renderPageStruct(page, content, build){
         )}
     `
 }
+
+
+
 
 
 
@@ -159,32 +161,6 @@ async function SapsarCompiler(page, req, res, dynamic=false){
 
 
         // Dynamic page, or generate static page    
-    
-        // import page
-        if (!cache.pageCompilers[page]) {
-            Log.compiler(`Generating PAGE FUNCTION CACHE for ${page}...`)
-            try {
-                cache.pageCompilers[page] = (await import(`../../../../pages/${page}.js`)).default
-            }
-            catch(e){
-                Log.buildError(`Error trying to build page: ${page}`)
-                res.status(400).end(SapsarErrorPage(
-                    `Something went wrong caching page function: ${page}`, 
-                    e.name,
-                    e.message,
-                    e.stack
-                ))
-            }
-        }
-
-
-
-        if (!cache.head[page]) {
-            Log.compiler(`Generating HEAD CACHE for ${page}...`)
-            cache.head[page] = ' '
-        }
-
-
 
 
         // Static page 
@@ -193,6 +169,8 @@ async function SapsarCompiler(page, req, res, dynamic=false){
             let finalContent = ""
 
             Log.compiler(`Generating STATIC PAGE CACHE for ${page}...`)
+
+            const buildId = createUniqueBuild(res)
             
             const Rendered_Page = await cache.pageCompilers[page](req, buildId, req.params)
 
@@ -210,19 +188,19 @@ async function SapsarCompiler(page, req, res, dynamic=false){
             let activeBuildProcesses = getBuildProcesses(buildId)
             for (let x = 0; x < activeBuildProcesses.length; x++) {
                 let processData = activeBuildProcesses[x]
+                let processContent = await processData.process(processData.args)
 
-                res.write(await processData.process(processData.args))
-                finalContent += struct;
+                res.write(processContent)
+                finalContent += processContent
             }
 
             // everything executed
             // ending response
             removeBuild(buildId)
+            res.end()   
             
-            res.end()
 
-            
-            cache.static.pages[path] = struct
+            cache.static.pages[path] = finalContent
 
 
             // End page render
@@ -286,22 +264,48 @@ async function SapsarCompiler(page, req, res, dynamic=false){
 
 
 
-async function SapsarUnknownPageHandler(page){
-    if (cache['404']){
+async function SapsarUnknownPageHandler(page, req, res){
+    if (cache.pageCompilers['errors/_404']){
+
+        //Custom 404 page
+
+        //render
+        
+        const buildId = createUniqueBuild(res)
+
+        const Rendered_Page = await cache.pageCompilers['errors/_404'](req, buildId, req.params)
+
+        const struct = await renderPageStruct(page, Rendered_Page, buildId)
+
+        res.write(struct)
+
+
+        //post render
+
+        let activeBuildProcesses = getBuildProcesses(buildId)
+        for (let x = 0; x < activeBuildProcesses.length; x++) {
+            let processData = activeBuildProcesses[x]
+
+            res.write(await processData.process(processData.args))
+        }
+
+        // everything executed
+
+        removeBuild(buildId)
+        res.end()
+
 
     }
     else {
-        const struct = SapsarErrorPage(
+        res.status(404).end(SapsarErrorPage(
             `Page <b>${page}</b> not found`,
             "Error 404",
             "Page not found",
             `Try re-checking your app's page files, and seeing if the one you're looking for exists, or simply try relaunching your app.
             
-            Want a custom 404 error page? Create a file called <b>_404.js</b> in your <b>pages</b> folder, and export a simple page function with two inputs: <b>data</b> and <b>page</b>.
+            Want a custom 404 error page? Create a file called <b>_404.js</b> in a seperate folder called <b>errors</b> inside your <b>pages</b> folder, and export a simple page function with two inputs: <b>data</b> and <b>page</b>.
             `
-        )
-        
-        return struct
+        ))
     }
 }
 

@@ -16,8 +16,11 @@ const Log = {
     },
     router: (error)=> {
         console.log(`\x1b[31m[Sapsar Router Error]\x1b[0m ${error}`)
+    },
+
+    build: (message)=>{
+        console.log(`\x1b[32m[Sapsar Build Manager]\x1b[0m ${message}`)
     }
 }
-
 
 module.exports = Log;
