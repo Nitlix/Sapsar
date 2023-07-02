@@ -1,6 +1,6 @@
 
 
-const { constructor, brConstructor } = require("./constructor")
+const { constructor, miniConstructor } = require("./constructor")
 
 const ParseArgs = require ("sapsar/basic/ParseArgs")
 
@@ -96,7 +96,7 @@ function body(...args){
 function br(...args){
     const { content, props } = ParseArgs(args);
     
-    return brConstructor(content, props, "br");
+    return miniConstructor(props, "br");
 }
 
 function button(...args){
@@ -360,7 +360,7 @@ function li(...args){
 function link(...args){
     const { content, props } = ParseArgs(args);
     
-    return constructor(content, props, "link");
+    return miniConstructor(props, "link");
 }
 
 function main(...args){
@@ -384,7 +384,7 @@ function mark(...args){
 function meta(...args){
     const { content, props } = ParseArgs(args);
     
-    return constructor(content, props, "meta");
+    return miniConstructor(props, "meta");
 }
 
 function meter(...args){

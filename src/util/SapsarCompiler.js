@@ -1,4 +1,4 @@
-const { doctype, head, html, body, meta, style, manualScript } = require("sapsar/base")
+const { doctype, head, html, body, meta } = require("sapsar/base")
 
 const Log = require("./Log")
 const SapsarErrorPage = require("./SapsarErrorPage")
@@ -6,6 +6,10 @@ const ShipTouch = require("../touch/ShipTouch")
 
 const getComplexLevel = require("./getComplexLevel")
 const { createUniqueBuild, getBuildProcesses, removeBuild } = require("./ActiveBuild")
+
+const fs = require("fs")
+const path = require("path")
+
 
 
 const cacheFormat = {
@@ -34,16 +38,28 @@ const cacheFormat = {
         requests: []
     },
 
+    reports: {
+        css: {},
+        js: {}
+    },
+
     util: {
         404: null
     }
 }
 
 
+let cache = JSON.parse(JSON.stringify(cacheFormat))
 
+let building = true;
 
+function setBuildStatus(status){
+    building = status
+}
 
-
+function getBuildStatus(){
+    return building
+}
 
 function handleHead(page){
     let content = ""
@@ -60,30 +76,39 @@ function handleHead(page){
         content += cache.head['*']
     }
 
+    // add css report
+    if (cache.reports.css[page]){
+        for (let x = 0; x < cache.reports.css[page].length; x++) {
+            const component = cache.reports.css[page][x];
+            
+            content += `<style data-rcss>${cache.css[component]}</style>`
+        }
+    }
+
+    // add js report
+    if (cache.reports.js[page]){
+        for (let x = 0; x < cache.reports.js[page].length; x++) {
+            const component = cache.reports.js[page][x];
+
+            content += `<script data-rjs>${cache.js[component]}</script>`
+        }
+    }
+
 
     return content
 }
 
 
 
-let cache = JSON.parse(JSON.stringify(cacheFormat))
 
 
 
 
-
-
-
-function clearCacheData(){
-    cache = JSON.parse(JSON.stringify(cacheFormat))
-}
 
 
 function addComplexCSS(component){
     if (cache.css[component]){
-        return style(
-            cache.css[component]
-        )
+        return `<style data-acss>${cache.css[component]}</style>`
     }
     else {
         return ""
@@ -99,12 +124,17 @@ async function renderPageStruct(page, content, build){
         finalComplexCSS += addComplexCSS(complexCSS.content[x])
     }
 
-    const activeHeadData = getComplexLevel(complexCSS.edited, ';ActiveHead;', ';/ActiveHead;')
+    const complexJS = getComplexLevel(complexCSS.edited, ';ActiveJS;', ';/ActiveJS;')
+    let finalComplexJS = ""
+    for (let x = 0; x < complexJS.content.length; x++) {
+        finalComplexJS += addcomplexJS(complexJS.content[x])
+    }
+
+    const activeHeadData = getComplexLevel(complexJS.edited, ';ActiveHead;', ';/ActiveHead;')
     let finalActiveHead = ""
     for (let x = 0; x < activeHeadData.content.length; x++) {
         finalActiveHead += activeHeadData.content[x]
     }
-
     
 
     return `
@@ -113,10 +143,11 @@ async function renderPageStruct(page, content, build){
             head(
                 meta({name:"viewport",content:"width=device-width, initial-scale=1.0"}),
                 meta({charset:"UTF-8"}),
+                `<script data-sapsar>const build = {id: "${build}"}</script>`,
+                finalActiveHead,
                 handleHead(page),
                 finalComplexCSS,
-                finalActiveHead,
-                `<script data-sapsar>const build = {id: "${build}"}</script>`
+                finalComplexJS,
             ),
             body(
                 activeHeadData.edited
@@ -132,6 +163,20 @@ async function renderPageStruct(page, content, build){
 
 
 
+
+async function CachePage(page) {
+    if (!cache.pageCompilers[page]) {
+        // Log.sapsar(`Generating PAGE FUNCTION CACHE for ${page}...`)
+        cache.pageCompilers[page] = (await import(`../../../../pages/${page}.js`)).default
+    }
+
+    if (!cache.head[page]) {
+        // Log.sapsar(`Generating HEAD CACHE for ${page}...`)
+        cache.head[page] = ' '
+    }
+
+    return;
+}
 
 
 
@@ -213,9 +258,9 @@ async function SapsarCompiler(page, req, res, dynamic=false){
             // New page render
 
             const buildId = createUniqueBuild(res)
-
-            
+                        
             const Rendered_Page = await cache.pageCompilers[page](req, buildId, req.params)
+
             
             const struct = await renderPageStruct(page, Rendered_Page, buildId)
 
@@ -249,8 +294,8 @@ async function SapsarCompiler(page, req, res, dynamic=false){
 
             //dispay error page
 
-            const stack = err.stack.split("at SapsarCompiler")[0]
-
+            // const stack = err.stack.split("at SapsarCompiler")[0]
+            const stack = err.stack
 
             res.status(400).end(
                 SapsarErrorPage(`Error while rendering page: ${page}`, err.name, err.message, stack)
@@ -311,11 +356,30 @@ async function SapsarUnknownPageHandler(page, req, res){
 
 // export compiler (as default) and cache
 
+const SAPSAR_CACHE_LOCATION = '../../../../sapsar.json'
+
+async function exportCache(){
+    if (!building) return;
+    await fs.writeFileSync(path.join(__dirname, SAPSAR_CACHE_LOCATION), JSON.stringify(cache))
+}
+
+async function importCache(){
+    cache = JSON.parse(
+        await fs.readFileSync(path.join(__dirname, SAPSAR_CACHE_LOCATION)).toString()
+    )
+}
+
+
 module.exports = {
     SapsarCompiler,
     SapsarUnknownPageHandler,
     cache,
-    clearCacheData
+    exportCache,
+    importCache,
+    setBuildStatus,
+    getBuildStatus,
+    CachePage,
+    building
 }
 
 

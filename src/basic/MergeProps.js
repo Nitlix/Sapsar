@@ -9,7 +9,15 @@ function MergeProps(props1, props2){
             else {
                 mergedProps[prop] = mergedProps[prop] + " " + props2[prop];
             }
-        }else{
+        }
+        else if (prop == "styles"){
+            if (!mergedProps.styles) mergedProps.styles = {};
+            mergedProps.styles = {
+                ...mergedProps.styles,
+                ...props2.styles
+            }
+        }
+        else{
             mergedProps[prop] = props2[prop];
         }
     }

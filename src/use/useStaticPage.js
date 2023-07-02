@@ -1,4 +1,4 @@
-const { cache } = require('../util/SapsarCompiler')
+const { cache } = require('../util/SapsarCompiler');
 
 function useStaticPage(page){
     cache.static.requests.push(page);
