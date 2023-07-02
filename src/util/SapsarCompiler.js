@@ -81,9 +81,7 @@ function clearCacheData(){
 
 function addComplexCSS(component){
     if (cache.css[component]){
-        return style(
-            cache.css[component]
-        )
+        return `<style data-scs>${cache.css[component]}</style>`
     }
     else {
         return ""
@@ -105,6 +103,7 @@ async function renderPageStruct(page, content, build){
         finalActiveHead += activeHeadData.content[x]
     }
 
+
     
 
     return `
@@ -113,9 +112,9 @@ async function renderPageStruct(page, content, build){
             head(
                 meta({name:"viewport",content:"width=device-width, initial-scale=1.0"}),
                 meta({charset:"UTF-8"}),
+                finalActiveHead,
                 handleHead(page),
                 finalComplexCSS,
-                finalActiveHead,
                 `<script data-sapsar>const build = {id: "${build}"}</script>`
             ),
             body(

@@ -175,8 +175,9 @@ async function map() {
 
     listener = app.listen(3000)
 
-    Log.sapsar(`Built the app in ${Date.now() - startTime} ms. Ready to serve on http://localhost:3000`)
-
+    Log.sapsar(`Built the app in ${Date.now() - startTime} ms. Ready to serve on http://localhost:3000. Any debugging or errors will be logged below.`)
+    Log.sapsar(`==============================================================================================================`)
+    
     return app;
 
 }
