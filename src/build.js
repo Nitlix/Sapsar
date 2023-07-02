@@ -1,45 +1,76 @@
 const Log = require('./util/Log.js');
-Log.sapsar("Starting Sapsar...")
+const { VERSION }  = require('./data/INFO.JS')
+
+Log.sapsar(`Starting Sapsar ${VERSION}...`)
 
 
-const createServer = require('./util/CreateServer.js')
-Log.sapsar("Created a server instance...")
-
-const ScanDirectory = require('./util/ScanDirectory.js');
-
-const ListCycle = require('lixtools/list/cycle')
-
-const CachePage = require('./util/CachePage.js');
-
-const SapsarErrorPage = require('./util/SapsarErrorPage.js');
-
-
-
-
-
-const path = require('path');
-
+// Main Sapsar Data
 const {
     SapsarCompiler,
-    SapsarUnknownPageHandler
+    SapsarUnknownPageHandler,
+    setBuildStatus,
+    importCache,
+    exportCache,
+    CachePage
 } = require('./util/SapsarCompiler.js');
 
 
+// Other imports
+const ScanDirectory = require('./util/ScanDirectory.js');
+const ListCycle = require('lixtools/list/cycle')
+const SapsarErrorPage = require('./util/SapsarErrorPage.js');
+const createServer = require('./util/CreateServer.js')
+const path = require('path');
 
-let listener = null;
 
 
+
+// Determine if the user is building or not
+
+
+
+
+let listener;
+
+let onlyBuilding = false;
 
 const pagesDirectory = path.join(__dirname, '../../../pages');
 
-
 async function map() {
 
-    Log.sapsar("Mapping your pages...")
+    
+    if (process.argv[2] == "gen_cache") {
+        // Leave it be, no cache taken, but cache will be written
+        Log.sapsar("This process will generate a unique build file cache.")
+    }
+    else {
+        setBuildStatus(false)
+        try {
+            await importCache()
+        }
+        catch (e) {
+            Log.sapsar("No critical file cache file was found (at root/sapsar.js). If this code is in a deployment, expect build errors.")
+            setBuildStatus(true)
+        }
+    }
+
+    if (process.argv[3] == "build"){
+        onlyBuilding = true;
+    }
+
+
+
 
     const startTime = Date.now();
 
-    const app = createServer();
+    let app;
+
+    app = createServer();
+    Log.sapsar("Created a server instance...")
+
+    
+    
+    Log.sapsar("Mapping your pages...")
     const files = ScanDirectory(pagesDirectory);
 
 
@@ -171,12 +202,21 @@ async function map() {
 
     //set up public directory
     //../public
+    Log.sapsar(`Built the app in ${Date.now() - startTime} ms.`)
 
+    //compiler will process whether to export it or not
+    await exportCache();
 
-    listener = app.listen(3000)
+    if(!onlyBuilding){
+        listener = app.listen(3000)
 
-    Log.sapsar(`Built the app in ${Date.now() - startTime} ms. Ready to serve on http://localhost:3000. Any debugging or errors will be logged below.`)
-    Log.sapsar(`==============================================================================================================`)
+        Log.sapsar(`Ready to serve on http://localhost:3000. Any debugging or errors will be logged below.`)
+        Log.sapsar(`==============================================================================================================`)
+    }
+    else {
+        Log.sapsar(`Build cache created successfully. Your app is ready to be deployed. Exiting...`)
+    }
+
     
     return app;
 

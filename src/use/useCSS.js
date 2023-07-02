@@ -1,17 +1,19 @@
-const { cache } = require('../util/SapsarCompiler');
+const { cache, getBuildStatus } = require('../util/SapsarCompiler');
 
-
-const getCSS = require('../util/getCSS');
-
+const getFileModel = require('../util/getFileModel');
+const CSS_FOLDER = 'styles'
 
 async function useCSS(path, component="*"){
-    if (component != "*"){
-        cache.css[component] = await getCSS(path)
+    if (getBuildStatus()) {
+        if (component == "*"){
+            cache.css['*'] += await getFileModel(path, CSS_FOLDER)
+        }
+        else {
+            cache.css[component] = await getFileModel(path, CSS_FOLDER)
+        }
+        return;
     }
-    else {
-        cache.css['*'] += await getCSS(path)
-    }
-
+    return;
 }
 
 
