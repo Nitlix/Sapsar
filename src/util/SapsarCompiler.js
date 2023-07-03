@@ -121,6 +121,15 @@ function addComplexCSS(component){
     }
 }
 
+function addcomplexJS(component){
+    if (cache.js[component]){
+        return `<script data-ajs>${cache.js[component]}</script>`
+    }
+    else {
+        return ""
+    }
+}
+
 
 async function renderPageStruct(page, content, build){
 
