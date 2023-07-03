@@ -38,6 +38,9 @@ const cacheFormat = {
         requests: []
     },
 
+    loaders: {
+    },
+
     reports: {
         css: {},
         js: {}
@@ -108,6 +111,15 @@ function handleHead(page){
 
 
 
+function SapsarLoader(id, res){
+    if (cache.loaders[id]){
+        res.status(200).end(cache.loaders[id])
+        delete cache.loaders[id]
+    }
+    else {
+        res.status(404).end("{}")
+    }
+}
 
 
 
@@ -150,6 +162,32 @@ async function renderPageStruct(page, content, build){
     for (let x = 0; x < activeHeadData.content.length; x++) {
         finalActiveHead += activeHeadData.content[x]
     }
+
+    const loadCSS = getComplexLevel(activeHeadData.edited, ';LoadCSS;', ';/LoadCSS;')
+    let finalLoadCSS = ""
+    for (let x = 0; x < loadCSS.content.length; x++) {
+        finalLoadCSS += loadCSS.content[x]
+    }
+
+    const loadJS = getComplexLevel(loadCSS.edited, ';LoadJS;', ';/LoadJS;')
+    let finalLoadJS = ""
+    for (let x = 0; x < loadJS.content.length; x++) {
+        finalLoadJS += loadJS.content[x]
+    }
+
+    //If any aren't empty, add them to the cache
+    let bundle = ""
+    if(finalLoadCSS){
+        cache.loaders[`${build}.css`] = finalLoadCSS
+        bundle += `<link rel="stylesheet" data-lcss href="/_sapsar/loader/${build}.css">`
+    }
+
+    if(finalLoadJS){
+        cache.loaders[`${build}.js`] = finalLoadJS
+        bundle += `<script data-ljs src="/_sapsar/loader/${build}.js"></script>`
+    }
+
+
     
 
     return `
@@ -395,6 +433,7 @@ module.exports = {
     getBuildStatus,
     getProductionStatus,
     CachePage,
+    SapsarLoader,
     building
 }
 
