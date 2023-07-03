@@ -10,7 +10,6 @@ const CSSOptimiser = new CleanCSS({});
 
 async function useCSS(path, component="*"){
     const production = getProductionStatus();
-    console.log(production)
     if (getBuildStatus()) {
         if (component == "*"){
             if (production){
