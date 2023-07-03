@@ -143,6 +143,25 @@ function addcomplexJS(component){
 }
 
 
+function addLoadCSS(component){
+    if (cache.css[component]){
+        return cache.css[component]
+    }
+    else {
+        return ""
+    }
+}
+
+function addLoadJS(component){
+    if (cache.js[component]){
+        return cache.js[component]
+    }
+    else {
+        return ""
+    }
+}
+
+
 async function renderPageStruct(page, content, build){
 
     const complexCSS = getComplexLevel(content, ';ActiveCSS;', ';/ActiveCSS;')
@@ -166,29 +185,29 @@ async function renderPageStruct(page, content, build){
     const loadCSS = getComplexLevel(activeHeadData.edited, ';LoadCSS;', ';/LoadCSS;')
     let finalLoadCSS = ""
     for (let x = 0; x < loadCSS.content.length; x++) {
-        finalLoadCSS += loadCSS.content[x]
+        finalLoadCSS += addLoadCSS(loadCSS.content[x])
     }
 
     const loadJS = getComplexLevel(loadCSS.edited, ';LoadJS;', ';/LoadJS;')
     let finalLoadJS = ""
     for (let x = 0; x < loadJS.content.length; x++) {
-        finalLoadJS += loadJS.content[x]
+        finalLoadJS += addLoadJS(loadJS.content[x])
     }
 
     //If any aren't empty, add them to the cache
-    let bundle = ""
+    let loadBundle = ""
     if(finalLoadCSS){
         cache.loaders[`${build}.css`] = finalLoadCSS
-        bundle += `<link rel="stylesheet" data-lcss href="/_sapsar/loader/${build}.css">`
+        loadBundle += `<link rel="stylesheet" data-lcss href="/_sapsar/loader/${build}.css" />`
     }
 
     if(finalLoadJS){
         cache.loaders[`${build}.js`] = finalLoadJS
-        bundle += `<script data-ljs src="/_sapsar/loader/${build}.js"></script>`
+        loadBundle += `<script data-ljs src="/_sapsar/loader/${build}.js"></script>`
     }
 
 
-    
+
 
     return `
         ${doctype()}
@@ -199,11 +218,16 @@ async function renderPageStruct(page, content, build){
                 `<script data-sapsar>const build = {id: "${build}"}</script>`,
                 finalActiveHead,
                 handleHead(page),
+
+                // Active stuff
                 finalComplexCSS,
                 finalComplexJS,
+
+                // Loaded stuff
+                loadBundle
             ),
             body(
-                activeHeadData.edited
+                loadJS.edited
             ),
             {
                 lang: "en"

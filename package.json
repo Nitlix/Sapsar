@@ -6,6 +6,7 @@
     "./touch/*": "./src/touch/*.js",
     "./basic/*": "./src/basic/*.js",
     "./active/*": "./src/active/*.js",
+    "./load/*": "./src/load/*.js",
     "./build": "./src/build.js"
   },
   "version": "0.2.3",
