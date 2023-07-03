@@ -61,6 +61,12 @@ function getBuildStatus(){
     return building
 }
 
+function getProductionStatus(){
+    return true;
+}
+
+
+
 function handleHead(page){
     let content = ""
 
@@ -378,6 +384,7 @@ module.exports = {
     importCache,
     setBuildStatus,
     getBuildStatus,
+    getProductionStatus,
     CachePage,
     building
 }
