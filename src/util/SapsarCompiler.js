@@ -24,12 +24,18 @@ const cacheFormat = {
     pageCompilers: {
 
     },
+
     head: {
         '*': ' '
     },
     
     touch: {
+        actions: {
+            
+        },
+        shipping: [
 
+        ]
     },
 
     static: {
@@ -290,7 +296,7 @@ async function SapsarCompiler(page, req, res, dynamic=false){
         if (cache.static.requests.includes(page)){
             let finalContent = ""
 
-            Log.compiler(`Generating STATIC PAGE CACHE for ${page}...`)
+            Log.compiler(`Generating STATIC PAGE CACHE for ${page} (SPEC: ${path})...`)
 
             const buildId = createUniqueBuild(res)
             
