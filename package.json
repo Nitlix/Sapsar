@@ -10,8 +10,8 @@
     "./build": "./src/build.js",
     "./util/*": "./src/util/*.js"
   },
-  "version": "0.2.3",
-  "description": "A lightspeed⚡, zero front-end JS📦 focused web framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
+  "version": "0.2.4",
+  "description": "A lightspeed⚡, zero front-end JS📦 focused backend JS framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
   "main": "src/exports.js",
   "scripts": {},
   "author": "Nitlix S.T.",
