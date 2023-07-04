@@ -20,7 +20,13 @@ const Log = {
 
     build: (message)=>{
         console.log(`\x1b[32m[Sapsar Build Manager]\x1b[0m ${message}`)
+    },
+
+    vyrbo: (message)=>{
+        console.log(`\u001b[95m[Sapsar Vyrbo]\x1b[0m ${message}`)
     }
+    
+    
 }
 
 module.exports = Log;

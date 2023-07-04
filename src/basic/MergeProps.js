@@ -1,3 +1,5 @@
+const { StylesConverter } = require("../util/StylesResolver");
+
 function MergeProps(props1, props2){
     //merge props2 into props1
     //if the property is "class", then just add the two classes together and seperate them with a space
@@ -13,8 +15,8 @@ function MergeProps(props1, props2){
         else if (prop == "styles"){
             if (!mergedProps.styles) mergedProps.styles = {};
             mergedProps.styles = {
-                ...mergedProps.styles,
-                ...props2.styles
+                ...StylesConverter(mergedProps.styles),
+                ...StylesConverter(props2.styles)
             }
         }
         else{

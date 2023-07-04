@@ -164,5 +164,23 @@ function StylesResolver(style, styles) {
     return `${style}${computedStyles}`
 }
 
+function StylesConverter(styles){
+    const computed = {
 
-module.exports = StylesResolver;
+    }
+    for (x in styles){
+        if (conversions[x]){
+            computed[conversions[x]] = styles[x]
+        }
+        else {
+            computed[x] = styles[x]
+        }
+    }
+    return computed
+}
+
+
+module.exports = {
+    StylesResolver,
+    StylesConverter
+}

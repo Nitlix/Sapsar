@@ -169,8 +169,18 @@ function addLoadJS(component){
 
 
 async function renderPageStruct(page, content, build){
+  
+    const complexCSS = getComplexLevel(
+        body(
+            content,
+            {
+                class: "sapsar-dom"
+            }
+        ),
+        ';ActiveCSS;', 
+        ';/ActiveCSS;'
+    )
 
-    const complexCSS = getComplexLevel(content, ';ActiveCSS;', ';/ActiveCSS;')
     let finalComplexCSS = ""
     for (let x = 0; x < complexCSS.content.length; x++) {
         finalComplexCSS += addComplexCSS(complexCSS.content[x])
@@ -232,9 +242,8 @@ async function renderPageStruct(page, content, build){
                 // Loaded stuff
                 loadBundle
             ),
-            body(
-                loadJS.edited
-            ),
+            //final data (with body)
+            loadJS.edited,
             {
                 lang: "en"
             },

@@ -1,6 +1,6 @@
 function ParseArgs(args) {
     let content = ""
-    let props = {};
+    let props;
 
     for (let x in args) {
         const arg = args[x]
@@ -10,14 +10,18 @@ function ParseArgs(args) {
                 content += arg.join("")
             }
             else {
-                props = arg
+                if (props){
+                    props = MergeProps(props, arg)
+                }
+                else {
+                    props = arg
+                }
             }
         }
         else {
             content += arg
         }
     }
-
 
     return {
         content: content,
