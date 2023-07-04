@@ -160,7 +160,7 @@ function addLoadCSS(component){
 
 function addLoadJS(component){
     if (cache.js[component]){
-        return cache.js[component]
+        return cache.js[component] + ";"
     }
     else {
         return ""
