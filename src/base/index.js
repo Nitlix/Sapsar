@@ -807,7 +807,6 @@ module.exports = {
     header,
     hr,
     html,
-
     i,
     iframe,
     img,
@@ -833,8 +832,6 @@ module.exports = {
     p,
     param,
     picture,
-
-
     pre,
     progress,
     q,
@@ -856,14 +853,15 @@ module.exports = {
     sub,
     summary,
     sup,
-    svg,
 
+    svg,
     circle,
     clipPath,
     defs,
     ellipse,
     foreignObject,
     g,
+
     image,
     line,
     path,

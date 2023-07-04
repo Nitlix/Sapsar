@@ -1,5 +1,5 @@
 const Log = require('./util/Log.js');
-const { VERSION }  = require('./data/INFO.JS')
+const { VERSION }  = require('./formats/INFO.JS')
 
 Log.sapsar(`Starting Sapsar ${VERSION}...`)
 
@@ -11,7 +11,8 @@ const {
     setBuildStatus,
     importCache,
     exportCache,
-    CachePage
+    CachePage,
+    SapsarLoader
 } = require('./util/SapsarCompiler.js');
 
 
@@ -21,28 +22,28 @@ const ListCycle = require('lixtools/list/cycle')
 const SapsarErrorPage = require('./util/SapsarErrorPage.js');
 const createServer = require('./util/CreateServer.js')
 const path = require('path');
+const { SAPSAR_LOADER_PATH } = require('./formats/SAPSAR_LOADER.JS');
 
-
-
-
-// Determine if the user is building or not
 
 
 
 
 let listener;
-
 let onlyBuilding = false;
-
 const pagesDirectory = path.join(__dirname, '../../../pages');
+let port = 3000;
 
 async function map() {
 
-    
+
+    // Determine if the user is building or not
+
     if (process.argv[2] == "gen_cache") {
         // Leave it be, no cache taken, but cache will be written
         Log.sapsar("This process will generate a unique build file cache.")
     }
+    //check if it's an integer between 0 and 1000
+
     else {
         setBuildStatus(false)
         try {
@@ -51,6 +52,11 @@ async function map() {
         catch (e) {
             Log.sapsar("No critical file cache file was found (at root/sapsar.js). If this code is in a deployment, expect build errors.")
             setBuildStatus(true)
+        }
+
+        //check if it's an integer between 0 and 1000 (2nd arg)
+        if (process.argv[2] != undefined) {
+            port = parseInt(process.argv[2]);
         }
     }
 
@@ -191,7 +197,9 @@ async function map() {
 
     }
 
-
+    app.get(`${SAPSAR_LOADER_PATH}:id`, async (req, res) => {
+        SapsarLoader(req.params.id, res)
+    })
 
 
     app.all('*', async (req, res) => {
@@ -208,9 +216,9 @@ async function map() {
     await exportCache();
 
     if(!onlyBuilding){
-        listener = app.listen(3000)
+        listener = app.listen(port)
 
-        Log.sapsar(`Ready to serve on http://localhost:3000. Any debugging or errors will be logged below.`)
+        Log.sapsar(`Ready to serve on http://localhost:${port}. Any debugging or errors will be logged below.`)
         Log.sapsar(`==============================================================================================================`)
     }
     else {
