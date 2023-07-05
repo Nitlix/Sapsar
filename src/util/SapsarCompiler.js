@@ -215,11 +215,24 @@ async function renderPageStruct(page, content, build){
     if(finalLoadCSS){
         cache.loaders[`${build}.css`] = finalLoadCSS
         loadBundle += `<link rel="stylesheet" data-lcss href="/_sapsar/loader/${build}.css" />`
+        //expire after 10 seconds
+        setTimeout(()=>{
+            if (cache.loaders[`${build}.css`]){
+                delete cache.loaders[`${build}.css`]
+            }
+        }, 10000)
+
     }
 
     if(finalLoadJS){
         cache.loaders[`${build}.js`] = finalLoadJS
         loadBundle += `<script data-ljs src="/_sapsar/loader/${build}.js"></script>`
+
+        setTimeout(()=>{
+            if (cache.loaders[`${build}.js`]){
+                delete cache.loaders[`${build}.js`]
+            }
+        }, 10000)
     }
 
 
