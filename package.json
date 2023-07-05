@@ -13,6 +13,9 @@
   "version": "0.2.7",
   "description": "A lightspeed⚡, zero front-end JS📦 focused backend JS framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
   "main": "src/exports.js",
+  "bin": {
+    "sapsar": "./src/cli.js"
+  },
   "scripts": {},
   "author": "Nitlix S.T.",
   "license": "MIT",
