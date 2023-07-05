@@ -1,16 +1,18 @@
+const MergeProps = require("./MergeProps");
+
 function ParseArgs(args) {
     let content = ""
-    let props;
+    let props = {}
 
     for (let x in args) {
         const arg = args[x]
 
         if (typeof arg == "object") {
             if (Array.isArray(arg)) {
-                content += arg.join("")
+                content += ParseArgs(arg).content
             }
             else {
-                if (props){
+                if (props != {}){
                     props = MergeProps(props, arg)
                 }
                 else {
@@ -28,6 +30,5 @@ function ParseArgs(args) {
         props: props,
     };
 }
-
 
 module.exports = ParseArgs;

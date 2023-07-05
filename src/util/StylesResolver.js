@@ -11,6 +11,7 @@ const conversions = {
     animationName: "animation-name",
     animationPlayState: "animation-play-state",
     animationTimingFunction: "animation-timing-function",
+    aspectRatio: "aspect-ratio",
     
     backfaceVisibility: "backface-visibility",
     backgroundAttachment: "background-attachment",
@@ -117,6 +118,8 @@ const conversions = {
     pageBreakInside: "page-break-inside",
     
     perspectiveOrigin: "perspective-origin",
+
+    pointerEvents: "pointer-events",
     tabSize: "tab-size",
     tableLayout: "table-layout",
     textAlign: "text-align",

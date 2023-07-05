@@ -12,7 +12,9 @@ const {
     importCache,
     exportCache,
     CachePage,
-    SapsarLoader
+    SapsarLoader,
+    SapsarTouch,
+    ImportMiddleware
 } = require('./util/SapsarCompiler.js');
 
 
@@ -23,22 +25,21 @@ const SapsarErrorPage = require('./util/SapsarErrorPage.js');
 const createServer = require('./util/CreateServer.js')
 const path = require('path');
 const { SAPSAR_LOADER_PATH } = require('./formats/SAPSAR_LOADER.JS');
+const { SAPSAR_TOUCH_PATH } = require('./formats/SAPSAR_TOUCH.JS');
 
 
 
 
 
 let listener;
-let onlyBuilding = false;
 const pagesDirectory = path.join(__dirname, '../../../pages');
-let port = 3000;
 
-async function map() {
+async function map(command, port=null) {
 
 
     // Determine if the user is building or not
 
-    if (process.argv[2] == "gen_cache") {
+    if (command == "gen_cache") {
         // Leave it be, no cache taken, but cache will be written
         Log.sapsar("This process will generate a unique build file cache.")
     }
@@ -55,14 +56,8 @@ async function map() {
         }
 
         //check if it's an integer between 0 and 1000 (2nd arg)
-        if (process.argv[2] != undefined) {
-            port = parseInt(process.argv[2]);
-        }
     }
 
-    if (process.argv[3] == "build"){
-        onlyBuilding = true;
-    }
 
 
 
@@ -74,6 +69,9 @@ async function map() {
     app = createServer();
     Log.sapsar("Created a server instance...")
 
+
+    Log.sapsar("Importing compiler middleware...")
+    ImportMiddleware()
     
     
     Log.sapsar("Mapping your pages...")
@@ -199,8 +197,11 @@ async function map() {
 
     app.get(`${SAPSAR_LOADER_PATH}:id`, async (req, res) => {
         SapsarLoader(req.params.id, res)
-    })
+    })  
 
+    app.post(`${SAPSAR_TOUCH_PATH}:id`, async (req, res) => {
+        await SapsarTouch(req.params.id, null, res, res)
+    })
 
     app.all('*', async (req, res) => {
         const path = req.path;
@@ -215,7 +216,7 @@ async function map() {
     //compiler will process whether to export it or not
     await exportCache();
 
-    if(!onlyBuilding){
+    if(port){
         listener = app.listen(port)
 
         Log.sapsar(`Ready to serve on http://localhost:${port}. Any debugging or errors will be logged below.`)
@@ -231,9 +232,8 @@ async function map() {
 }
 
 
-const app = map();
 
-module.exports = app;
+module.exports = map;
 
 // async function onUpdate(path) {
 //     await listener.close();
