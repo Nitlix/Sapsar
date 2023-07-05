@@ -12,7 +12,8 @@ const {
     importCache,
     exportCache,
     CachePage,
-    SapsarLoader
+    SapsarLoader,
+    SapsarTouch
 } = require('./util/SapsarCompiler.js');
 
 
@@ -23,6 +24,7 @@ const SapsarErrorPage = require('./util/SapsarErrorPage.js');
 const createServer = require('./util/CreateServer.js')
 const path = require('path');
 const { SAPSAR_LOADER_PATH } = require('./formats/SAPSAR_LOADER.JS');
+const { SAPSAR_TOUCH_PATH } = require('./formats/SAPSAR_TOUCH.JS');
 
 
 
@@ -199,8 +201,11 @@ async function map() {
 
     app.get(`${SAPSAR_LOADER_PATH}:id`, async (req, res) => {
         SapsarLoader(req.params.id, res)
-    })
+    })  
 
+    app.post(`${SAPSAR_TOUCH_PATH}:id`, async (req, res) => {
+        await SapsarTouch(req.params.id, null, res, res)
+    })
 
     app.all('*', async (req, res) => {
         const path = req.path;

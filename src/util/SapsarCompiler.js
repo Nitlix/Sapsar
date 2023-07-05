@@ -2,7 +2,7 @@ const { doctype, head, html, body, meta } = require("sapsar/base")
 
 const Log = require("./Log")
 const SapsarErrorPage = require("./SapsarErrorPage")
-const ShipTouch = require("../touch/ShipTouch")
+const { SHIP_TOUCH } = require("../formats/SAPSAR_TOUCH")
 
 const getComplexLevel = require("./getComplexLevel")
 const { createUniqueBuild, getBuildProcesses, removeBuild } = require("./ActiveBuild")
@@ -11,13 +11,13 @@ const fs = require("fs")
 const path = require("path")
 
 
-
 const cacheFormat = {
     css: {
         '*': ''
     },
     js: {
-        '*': ''
+        '*': '',
+        touch: SHIP_TOUCH
     },
 
 
@@ -32,10 +32,7 @@ const cacheFormat = {
     touch: {
         actions: {
             
-        },
-        shipping: [
-
-        ]
+        }
     },
 
     static: {
@@ -56,6 +53,9 @@ const cacheFormat = {
         404: null
     }
 }
+
+
+
 
 
 let cache = JSON.parse(JSON.stringify(cacheFormat))
@@ -79,17 +79,11 @@ function getProductionStatus(){
 function handleHead(page){
     let content = ""
 
-    if (cache.touch[page]){
-        content += ShipTouch('http://localhost', 3000)
-    }
-
     if (cache.head[page] != undefined){
         content += cache.head[page]
     }
 
-    if (cache.head['*'] != undefined){
-        content += cache.head['*']
-    }
+    content += cache.head['*']
 
     // add css report
     if (cache.reports.css[page]){
@@ -159,8 +153,10 @@ function addLoadCSS(component){
 }
 
 function addLoadJS(component){
+    console.log(component)
+    console.log(cache.js[component])
     if (cache.js[component]){
-        return cache.js[component] + ";"
+        return cache.js[component] + "\n"
     }
     else {
         return ""
@@ -168,7 +164,7 @@ function addLoadJS(component){
 }
 
 
-async function renderPageStruct(page, content, build){
+async function renderPageStruct(page, content, build, static=false){
   
     const complexCSS = getComplexLevel(
         body(
@@ -210,29 +206,50 @@ async function renderPageStruct(page, content, build){
         finalLoadJS += addLoadJS(loadJS.content[x])
     }
 
+
+
+
+
+
+
     //If any aren't empty, add them to the cache
     let loadBundle = ""
     if(finalLoadCSS){
-        cache.loaders[`${build}.css`] = finalLoadCSS
+        let cssBundleName = `${build}.css`
+        if (static){
+            cssBundleName = `static/${page}.css`
+        }
+        else {
+            setTimeout(()=>{
+                if (cache.loaders[cssBundleName]){
+                    delete cache.loaders[cssBundleName]
+                }
+            }, 10000)
+        }
+
+        cache.loaders[cssBundleName] = finalLoadCSS
         loadBundle += `<link rel="stylesheet" data-lcss href="/_sapsar/loader/${build}.css" />`
         //expire after 10 seconds
-        setTimeout(()=>{
-            if (cache.loaders[`${build}.css`]){
-                delete cache.loaders[`${build}.css`]
-            }
-        }, 10000)
+        
 
     }
 
     if(finalLoadJS){
-        cache.loaders[`${build}.js`] = finalLoadJS
-        loadBundle += `<script data-ljs src="/_sapsar/loader/${build}.js"></script>`
+        let jsBundleName = `${build}.js`
+        if (static){
+            jsBundleName = `static/${page}.js`
+        }
+        else {
+            setTimeout(()=>{
+                if (cache.loaders[jsBundleName]){
+                    delete cache.loaders[jsBundleName]
+                }
+            }, 10000)
+        }
+        
+        cache.loaders[jsBundleName] = finalLoadJS
 
-        setTimeout(()=>{
-            if (cache.loaders[`${build}.js`]){
-                delete cache.loaders[`${build}.js`]
-            }
-        }, 10000)
+        loadBundle += `<script data-ljs src="/_sapsar/loader/${build}.js"></script>`
     }
 
 
@@ -266,6 +283,18 @@ async function renderPageStruct(page, content, build){
 
 
 
+
+
+async function SapsarTouch(func, buildId, req, res){
+    if (cache.touch.actions[func]){
+        const data = await cache.touch.actions[func](req.body, req)
+        await res.end(JSON.stringify(data))
+    }
+    else {
+        res.end(JSON.stringify({"execute": "console.error('Sapsar could not find this Touch Action.')"}))
+    }
+
+}
 
 
 
@@ -308,8 +337,6 @@ async function SapsarCompiler(page, req, res, dynamic=false){
     }
 
     else {
-
-
         // Dynamic page, or generate static page    
 
 
@@ -324,7 +351,7 @@ async function SapsarCompiler(page, req, res, dynamic=false){
             
             const Rendered_Page = await cache.pageCompilers[page](req, buildId, req.params)
 
-            const struct = await renderPageStruct(page, Rendered_Page, buildId)
+            const struct = await renderPageStruct(page, Rendered_Page, buildId, true)
 
             res.write(struct)
             finalContent += struct
@@ -486,6 +513,7 @@ module.exports = {
     getProductionStatus,
     CachePage,
     SapsarLoader,
+    SapsarTouch,
     building
 }
 
