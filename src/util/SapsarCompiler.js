@@ -153,8 +153,6 @@ function addLoadCSS(component){
 }
 
 function addLoadJS(component){
-    console.log(component)
-    console.log(cache.js[component])
     if (cache.js[component]){
         return cache.js[component] + "\n"
     }

@@ -28,7 +28,6 @@ async function SapsarVyrbo(inputjs) {
 
             //delete file
             await fs.unlinkSync(process.cwd() + `/temp/${name}`)
-            console.log(code)
             resolve(code)
     
             Log.vyrbo(`Compiled script ${name}`)
