@@ -250,7 +250,7 @@ async function renderPageStruct(page, content, build, static=false){
         switch(method){
             case 'active':
                 //add active css
-                finalActiveCSS += '<style data-ship>' + finalShip + '</style>'
+                finalActiveCSS += finalShip
                 break;
             case 'load':
                 //add load css
