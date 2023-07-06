@@ -148,8 +148,9 @@ async function map(command, port=null) {
                 return
             })
         } catch (e) {
-            Log.buildError(`Error trying to save page function: ${data.original}`)
-
+            //error then new line and then stack
+            Log.savePageFunctionError(data.original, e)
+            
             app.get(`/${data.access}`, async (req, res) => {
                 res.status(400).end(await SapsarErrorPage(
                     `Something went wrong caching page function: ${data.original}`,
@@ -179,7 +180,7 @@ async function map(command, port=null) {
                 return
             })
         } catch (e) {
-            Log.buildError(`Error trying to save dynamic route page function: ${data.original}`)
+            Log.savePageFunctionError(data.original, e)
 
             app.get(`/${data.access}`, async (req, res) => {
                 res.status(400).end(await SapsarErrorPage(
@@ -219,7 +220,7 @@ async function map(command, port=null) {
     if(port){
         listener = app.listen(port)
 
-        Log.sapsar(`Ready to serve on http://localhost:${port}. Any debugging or errors will be logged below.`)
+        Log.serve(port)
         Log.sapsar(`======================================================================================`)
     }
     else {

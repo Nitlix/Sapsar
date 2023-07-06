@@ -1,23 +1,18 @@
-const colors = {
-    bgmagenta: '\x1b[45m',
-    bgorange: '\x1b[48;5;202m',
-    bgpurple: '\x1b[48;5;129m',
-    bgblue: '\x1b[48;5;27m',
-    bgred: '\x1b[48;5;196m',
-
-    bold: '\x1b[1m',
+const colors = require('./ConsoleColors')
 
 
-    reset: '\x1b[0m',
+const stack = (error) => {
+    return `\n * [${colors.bgred} ${colors.reset}] ${colors.bold} Stack -- ${error.stack}\n`
 }
+
 
 const Log = {
     compiler: (message) =>{
         console.log(`${colors.bold} * ${colors.bgblue} sapsar compiler ${colors.reset} ${message}`)
     },
-    renderError: (error)=>{
+    renderError: (page, error)=>{
         //red color 
-        console.log(`${colors.bold} * ${colors.bgred} sapsar render error ${colors.reset} ${error}`)
+        console.log(`\n${colors.bold} * ${colors.bgred} sapsar render error ${colors.reset} Something went wrong rendering ${colors.bold}${page}. ${stack(error)}`)
     },
     sapsar: (message)=>{
         //gold color
@@ -25,7 +20,7 @@ const Log = {
     },
     buildError: (error)=>{
         //red color 
-        console.log(`${colors.bold} * ${colors.bgred} sapsar build error ${colors.reset} ${error}`)
+        console.log(`\n${colors.bold} * ${colors.bgred} sapsar build error ${colors.reset} ${error}`)
     },
     router: (error)=> {
         console.log(`${colors.bold} * ${colors.bgred} sapsar router error ${colors.reset} ${error}`)
@@ -37,6 +32,15 @@ const Log = {
 
     vyrbo: (message)=>{
         console.log(`${colors.bold} * ${colors.bgorange} sapsar vyrbo ${colors.reset} ${message}`)
+    },
+
+    serve: (port)=>{
+        Log.sapsar(`Ready to serve on ${colors.bgpurple}${colors.bold}[http://localhost:${port}]${colors.reset}! Any debugging or errors will be logged below.`)
+    },
+
+
+    savePageFunctionError: (page, error)=>{
+        Log.buildError(`An error occured while trying to cache page function: ${colors.bold}${page} ${stack(error)}`)
     }
     
     

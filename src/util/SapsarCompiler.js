@@ -567,7 +567,7 @@ async function SapsarCompiler(page, req, res, dynamic=false){
 
             
             catch(err){
-                Log.renderError(err)
+                Log.renderError(page, err)
                 
 
                 //dispay error page
