@@ -8,9 +8,10 @@
     "./active/*": "./src/active/*.js",
     "./load/*": "./src/load/*.js",
     "./build": "./src/build.js",
-    "./util/*": "./src/util/*.js"
+    "./util/*": "./src/util/*.js",
+    "./ship/*": "./src/ship/*.js"
   },
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "A lightspeed⚡, zero front-end JS📦 focused backend JS framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
   "main": "src/exports.js",
   "bin": {
