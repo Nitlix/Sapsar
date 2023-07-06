@@ -4,6 +4,7 @@ const Log = require("./Log")
 const SapsarErrorPage = require("./SapsarErrorPage")
 const { SHIP_TOUCH } = require("../formats/SAPSAR_TOUCH")
 
+
 const getComplexLevel = require("./getComplexLevel")
 const { createUniqueBuild, getBuildProcesses, removeBuild } = require("./ActiveBuild")
 
@@ -11,7 +12,7 @@ const fs = require("fs")
 const path = require("path")
 
 
-const cacheFormat = {
+let cache = {
     css: {
         '*': ''
     },
@@ -22,6 +23,11 @@ const cacheFormat = {
 
 
     pageCompilers: {
+
+    },
+
+
+    ship: {
 
     },
 
@@ -53,7 +59,11 @@ const cacheFormat = {
         404: null
     },
 
+    plugins: {
+
+    }
 }
+
 
 
 let SapsarMiddleware = (req, res) => {return false;}
@@ -72,7 +82,7 @@ async function ImportMiddleware(){
 
 
 
-let cache = JSON.parse(JSON.stringify(cacheFormat))
+
 
 let building = true;
 
@@ -138,69 +148,70 @@ function SapsarLoader(id, res){
 
 
 
-function addComplexCSS(component){
-    if (cache.css[component]){
-        return `<style data-acss>${cache.css[component]}</style>`
-    }
-    else {
-        return ""
-    }
-}
-
-function addcomplexJS(component){
-    if (cache.js[component]){
-        return `<script data-ajs>${cache.js[component]}</script>`
-    }
-    else {
-        return ""
-    }
-}
 
 
-function addLoadCSS(component){
-    if (cache.css[component]){
-        return cache.css[component]
-    }
-    else {
-        return ""
-    }
-}
 
-function addLoadJS(component){
-    if (cache.js[component]){
-        return cache.js[component] + "\n"
-    }
-    else {
-        return ""
-    }
-}
 
 
 async function renderPageStruct(page, content, build, static=false){
-  
-    const complexCSS = getComplexLevel(
-        body(
-            content,
-            {
-                class: "sapsar-dom"
-            }
-        ),
-        ';ActiveCSS;', 
-        ';/ActiveCSS;'
+
+    const render = body(
+        content,
+        {
+            class: "sapsar-dom"
+        }
     )
 
-    let finalComplexCSS = ""
-    for (let x = 0; x < complexCSS.content.length; x++) {
-        finalComplexCSS += addComplexCSS(complexCSS.content[x])
+     //handle ships
+
+     let finalShip = ""
+
+     for (let x in cache.ship){
+        //get all x="" from content string
+        const regex = new RegExp(`${x}="([^"]*)"`, "g")
+        //get all matches
+        //get x names
+        //put them into an array
+        //turn the strings in an array of split strings
+        //put them back together
+        let actual = []
+        const matches = render.match(regex).map((val)=>{return val.replace(`${x}="`, "").replace('"', "")}).map((val)=>{return val.split(" ")})
+        //put them back together
+        
+        for (let y = 0; y < matches.length; y++) {
+            const element = matches[y];
+            actual = actual.concat(element)
+        }
+
+        for (let y in cache.ship[x]){
+            if (actual.includes(y)){
+                finalShip += cache.ship[x][y]
+            }
+        }
+     }
+ 
+
+   
+
+
+  
+    const ActiveCSS = getComplexLevel(render,';ActiveCSS;', ';/ActiveCSS;')
+    let finalActiveCSS = ""
+    for (let x = 0; x < ActiveCSS.content.length; x++) {
+        if (cache.css[ActiveCSS.content[x]]){
+            finalActiveCSS += cache.css[ActiveCSS.content[x]]
+        }
     }
 
-    const complexJS = getComplexLevel(complexCSS.edited, ';ActiveJS;', ';/ActiveJS;')
-    let finalComplexJS = ""
-    for (let x = 0; x < complexJS.content.length; x++) {
-        finalComplexJS += addcomplexJS(complexJS.content[x])
+    const ActiveJS = getComplexLevel(ActiveCSS.edited, ';ActiveJS;', ';/ActiveJS;')
+    let finalActiveJS = ""
+    for (let x = 0; x < ActiveJS.content.length; x++) {
+        if (cache.js[ActiveJS.content[x]]){
+            finalActiveJS += (cache.js[ActiveJS.content[x]] + "\n")
+        }
     }
 
-    const activeHeadData = getComplexLevel(complexJS.edited, ';ActiveHead;', ';/ActiveHead;')
+    const activeHeadData = getComplexLevel(ActiveJS.edited, ';ActiveHead;', ';/ActiveHead;')
     let finalActiveHead = ""
     for (let x = 0; x < activeHeadData.content.length; x++) {
         finalActiveHead += activeHeadData.content[x]
@@ -209,13 +220,120 @@ async function renderPageStruct(page, content, build, static=false){
     const loadCSS = getComplexLevel(activeHeadData.edited, ';LoadCSS;', ';/LoadCSS;')
     let finalLoadCSS = ""
     for (let x = 0; x < loadCSS.content.length; x++) {
-        finalLoadCSS += addLoadCSS(loadCSS.content[x])
+        if (cache.css[loadCSS.content[x]]){
+            finalLoadCSS += cache.css[loadCSS.content[x]]
+        }
     }
 
     const loadJS = getComplexLevel(loadCSS.edited, ';LoadJS;', ';/LoadJS;')
     let finalLoadJS = ""
     for (let x = 0; x < loadJS.content.length; x++) {
-        finalLoadJS += addLoadJS(loadJS.content[x])
+        if (cache.js[loadJS.content[x]]){
+            finalLoadJS += (cache.js[loadJS.content[x]] + "\n")
+        }
+    }
+
+    let finalRender = loadJS.edited;
+
+    if (finalShip){
+
+    // handle the shipping of ships lol
+        const complexShip = getComplexLevel(
+            loadJS.edited, 
+            ';Ship;',
+            ';/Ship;'
+        )
+
+        //method or default (active)
+        const method = complexShip.content[0] || 'active'
+
+        switch(method){
+            case 'active':
+                //add active css
+                finalActiveCSS += finalShip
+                break;
+            case 'load':
+                //add load css
+                finalLoadCSS += finalShip
+                break;
+            default:
+                throw new Error(`At Compiler RPS: Invalid shipping method: "${method}". Only "active" and "load" are valid.`)
+        }
+
+        finalRender = complexShip.edited
+
+    }
+   
+
+
+
+
+    //let the plugins do their work
+    const methods = ['add']
+    const addingTypes = ['acss', 'ajs', 'ahead', 'lcss', 'ljs']
+    
+    for (plugin_name in cache.plugins) {
+        const pluginFunc = cache.plugins[plugin_name];
+        const data = await pluginFunc(finalRender, page, build, {
+            ActiveCSS: finalActiveCSS,
+            ActiveJS: finalActiveJS,
+            ActiveHead: finalActiveHead,
+            LoadCSS: finalLoadCSS,
+            LoadJS: finalLoadJS
+        })
+
+        for (let x = 0; x < data.length; x++){
+            switch (data[x].method){
+                case 'add':
+                    switch (data[x].data.type){
+                        case 'acss':
+                            finalActiveCSS += data[x].data.content
+                            break;
+                        case 'ajs':
+                            finalActiveJS += data[x].data.content
+                            break;
+                        case 'ahead':
+                            finalActiveHead += data[x].data.content
+                            break;
+                        case 'lcss':
+                            finalLoadCSS += data[x].data.content
+                            break;
+                        case 'ljs':
+                            finalLoadJS += data[x].data.content
+                            break;
+                        default:
+                            throw new Error(`At Compiler RPS: Invalid adding type at plugin "${plugin_name}": "${data[x].data.type}". Only "${addingTypes.join(', ')}" are valid.`)
+                    }
+                    break;
+                case 'replace':
+                    switch (data[x].data.type){
+                        case 'acss':
+                            finalActiveCSS = data[x].data.content
+                            break;
+                        case 'ajs':
+                            finalActiveJS = data[x].data.content
+                            break;
+                        case 'ahead':
+                            finalActiveHead = data[x].data.content
+                            break;
+                        case 'lcss':
+                            finalLoadCSS = data[x].data.content
+                            break;
+                        case 'ljs':
+                            finalLoadJS = data[x].data.content
+                            break;
+                        default:
+                            throw new Error(`At Compiler RPS: Invalid replacing type at plugin "${plugin_name}": "${data[x].data.type}". Only "${addingTypes.join(', ')}" are valid.`)
+                        }
+                    break;  
+
+                //default
+                default:
+                    throw new Error(`At Compiler RPS: Invalid method at plugin "${plugin_name}": "${data[x].method}". Only "${methods.join(', ')}" are valid.`)
+                
+                
+            }
+        }
     }
 
 
@@ -224,6 +342,8 @@ async function renderPageStruct(page, content, build, static=false){
 
 
 
+
+    // GENERATE FINAL BUNDLES
     //If any aren't empty, add them to the cache
     let loadBundle = ""
     if(finalLoadCSS){
@@ -242,8 +362,6 @@ async function renderPageStruct(page, content, build, static=false){
         cache.loaders[cssBundleName] = finalLoadCSS
         loadBundle += `<link rel="stylesheet" data-lcss href="/_sapsar/loader/${build}.css" />`
         //expire after 10 seconds
-        
-
     }
 
     if(finalLoadJS){
@@ -265,7 +383,18 @@ async function renderPageStruct(page, content, build, static=false){
     }
 
 
+    if (finalActiveCSS){
+        finalActiveCSS = `<style data-acss>${finalActiveCSS}</style>`
+    }
 
+    if (finalActiveJS){
+        finalActiveJS = `<script data-ajs>${finalActiveJS}</script>`
+    }
+
+
+
+    
+    //return final structure
 
     return `
         ${doctype()}
@@ -278,14 +407,14 @@ async function renderPageStruct(page, content, build, static=false){
                 handleHead(page),
 
                 // Active stuff
-                finalComplexCSS,
-                finalComplexJS,
+                finalActiveCSS,
+                finalActiveJS,
 
                 // Loaded stuff
                 loadBundle
             ),
             //final data (with body)
-            loadJS.edited,
+            finalRender,
             {
                 lang: "en"
             },
@@ -438,7 +567,7 @@ async function SapsarCompiler(page, req, res, dynamic=false){
 
             
             catch(err){
-                Log.renderError(err)
+                Log.renderError(page, err)
                 
 
                 //dispay error page

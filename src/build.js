@@ -24,8 +24,8 @@ const ListCycle = require('lixtools/list/cycle')
 const SapsarErrorPage = require('./util/SapsarErrorPage.js');
 const createServer = require('./util/CreateServer.js')
 const path = require('path');
-const { SAPSAR_LOADER_PATH } = require('./formats/SAPSAR_LOADER.JS');
-const { SAPSAR_TOUCH_PATH } = require('./formats/SAPSAR_TOUCH.JS');
+const { SAPSAR_LOADER_PATH } = require('./formats/SAPSAR_LOADER');
+const { SAPSAR_TOUCH_PATH } = require('./formats/SAPSAR_TOUCH');
 
 
 
@@ -148,8 +148,9 @@ async function map(command, port=null) {
                 return
             })
         } catch (e) {
-            Log.buildError(`Error trying to save page function: ${data.original}`)
-
+            //error then new line and then stack
+            Log.savePageFunctionError(data.original, e)
+            
             app.get(`/${data.access}`, async (req, res) => {
                 res.status(400).end(await SapsarErrorPage(
                     `Something went wrong caching page function: ${data.original}`,
@@ -179,7 +180,7 @@ async function map(command, port=null) {
                 return
             })
         } catch (e) {
-            Log.buildError(`Error trying to save dynamic route page function: ${data.original}`)
+            Log.savePageFunctionError(data.original, e)
 
             app.get(`/${data.access}`, async (req, res) => {
                 res.status(400).end(await SapsarErrorPage(
@@ -219,8 +220,8 @@ async function map(command, port=null) {
     if(port){
         listener = app.listen(port)
 
-        Log.sapsar(`Ready to serve on http://localhost:${port}. Any debugging or errors will be logged below.`)
-        Log.sapsar(`==============================================================================================================`)
+        Log.serve(port)
+        Log.sapsar(`========================================================================================`)
     }
     else {
         Log.sapsar(`Build cache created successfully. Your app is ready to be deployed. Exiting...`)
