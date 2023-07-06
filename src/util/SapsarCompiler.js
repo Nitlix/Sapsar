@@ -309,7 +309,6 @@ async function renderPageStruct(page, content, build, static=false){
         })
 
         for (let x = 0; x < data.length; x++){
-            console.log(data[x])
             switch (data[x].method){
                 case 'add':
                     switch (data[x].data.type){
@@ -363,7 +362,6 @@ async function renderPageStruct(page, content, build, static=false){
         }
 
         cache.loaders[cssBundleName] = finalLoadCSS
-        console.log(cssBundleName)
         loadBundle += `<link rel="stylesheet" data-lcss href="/_sapsar/loader/${build}.css" />`
         //expire after 10 seconds
     }
