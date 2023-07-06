@@ -60,7 +60,7 @@ let cache = {
     },
 
     plugins: {
-        
+
     }
 }
 
@@ -294,6 +294,59 @@ async function renderPageStruct(page, content, build, static=false){
 
 
 
+    //let the plugins do their work
+    const methods = ['add']
+    const addingTypes = ['acss', 'ajs', 'ahead', 'lcss', 'ljs']
+    
+    for (plugin_name in cache.plugins) {
+        const pluginFunc = cache.plugins[plugin_name];
+        const data = await pluginFunc(finalRender, page, build, {
+            ActiveCSS: finalActiveCSS,
+            ActiveJS: finalActiveJS,
+            ActiveHead: finalActiveHead,
+            LoadCSS: finalLoadCSS,
+            LoadJS: finalLoadJS
+        })
+
+        for (let x = 0; x < data.length; x++){
+            console.log(data[x])
+            switch (data[x].method){
+                case 'add':
+                    switch (data[x].data.type){
+                        case 'acss':
+                            finalActiveCSS += data[x].data.content
+                            break;
+                        case 'ajs':
+                            finalActiveJS += data[x].data.content
+                            break;
+                        case 'ahead':
+                            finalActiveHead += data[x].data.content
+                            break;
+                        case 'lcss':
+                            finalLoadCSS += data[x].data.content
+                            break;
+                        case 'ljs':
+                            finalLoadJS += data[x].data.content
+                            break;
+                        default:
+                            throw new Error(`At Compiler RPS: Invalid adding type at plugin "${plugin_name}": "${data[x].data.type}". Only "${addingTypes.join(', ')}" are valid.`)
+                    }
+                    break;
+                default:
+                    throw new Error(`At Compiler RPS: Invalid method at plugin "${plugin_name}": "${data[x].method}". Only "${methods.join(', ')}" are valid.`)
+
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+    // GENERATE FINAL BUNDLES
     //If any aren't empty, add them to the cache
     let loadBundle = ""
     if(finalLoadCSS){
@@ -335,28 +388,6 @@ async function renderPageStruct(page, content, build, static=false){
 
 
 
-    //let the plugins do their work
-    for (plugin_name in cache.plugins) {
-        const pluginFunc = cache.plugins[plugin_name];
-        const data = await pluginFunc(finalRender, page, build, {
-            ActiveCSS: finalActiveCSS,
-            ActiveJS: finalActiveJS,
-            ActiveHead: finalActiveHead,
-            LoadCSS: loadBundle,
-            LoadJS: ""
-        })
-
-        if (!data.ActiveCSS || !data.ActiveJS || !data.ActiveHead || !data.LoadCSS || !data.LoadJS){
-            throw new Error(`At Compiler RPS: Plugin "${plugin_name}" did not return all required data.`)
-        }
-
-        finalActiveCSS += data.ActiveCSS
-        finalActiveJS += data.ActiveJS
-        finalActiveHead += data.ActiveHead
-        finalLoadCSS += data.LoadCSS
-        finalLoadJS += data.LoadJS
-        finalRender = data.edited
-    }
 
 
     
