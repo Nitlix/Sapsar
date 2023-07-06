@@ -4,6 +4,9 @@ const Log = require("./Log")
 const SapsarErrorPage = require("./SapsarErrorPage")
 const { SHIP_TOUCH } = require("../formats/SAPSAR_TOUCH")
 
+const useCSS = require("../use/useCSS")
+const useJS = require("../use/useJS")
+
 const getComplexLevel = require("./getComplexLevel")
 const { createUniqueBuild, getBuildProcesses, removeBuild } = require("./ActiveBuild")
 
@@ -138,39 +141,57 @@ function SapsarLoader(id, res){
 
 
 
-function addComplexCSS(component){
+async function addComplexCSS(component, triedAdding=false){
     if (cache.css[component]){
         return `<style data-acss>${cache.css[component]}</style>`
     }
     else {
+        if (triedAdding == false){
+            await useCSS(component)
+            return await addComplexCSS(component, true)
+        }
         return ""
     }
 }
 
-function addcomplexJS(component){
+async function addcomplexJS(component, triedAdding=false){
     if (cache.js[component]){
         return `<script data-ajs>${cache.js[component]}</script>`
     }
     else {
+        if (triedAdding == false){
+            await useJS(component)
+            return await addcomplexJS(component, true)
+        }
         return ""
     }
 }
 
 
-function addLoadCSS(component){
+async function addLoadCSS(component, triedAdding=false){
     if (cache.css[component]){
         return cache.css[component]
     }
     else {
-        return ""
+        if (triedAdding == false){
+            await useCSS(component)
+            return await addLoadCSS(component, true)
+        }
+        else {
+            return ""
+        }
     }
 }
 
-function addLoadJS(component){
+async function addLoadJS(component, triedAdding=false){
     if (cache.js[component]){
         return cache.js[component] + "\n"
     }
     else {
+        if (triedAdding == false){
+            await useJS(component)
+            return await addLoadJS(component, true)
+        }
         return ""
     }
 }
@@ -191,13 +212,13 @@ async function renderPageStruct(page, content, build, static=false){
 
     let finalComplexCSS = ""
     for (let x = 0; x < complexCSS.content.length; x++) {
-        finalComplexCSS += addComplexCSS(complexCSS.content[x])
+        finalComplexCSS += await addComplexCSS(complexCSS.content[x])
     }
 
     const complexJS = getComplexLevel(complexCSS.edited, ';ActiveJS;', ';/ActiveJS;')
     let finalComplexJS = ""
     for (let x = 0; x < complexJS.content.length; x++) {
-        finalComplexJS += addcomplexJS(complexJS.content[x])
+        finalComplexJS += await addcomplexJS(complexJS.content[x])
     }
 
     const activeHeadData = getComplexLevel(complexJS.edited, ';ActiveHead;', ';/ActiveHead;')
@@ -209,13 +230,13 @@ async function renderPageStruct(page, content, build, static=false){
     const loadCSS = getComplexLevel(activeHeadData.edited, ';LoadCSS;', ';/LoadCSS;')
     let finalLoadCSS = ""
     for (let x = 0; x < loadCSS.content.length; x++) {
-        finalLoadCSS += addLoadCSS(loadCSS.content[x])
+        finalLoadCSS += await addLoadCSS(loadCSS.content[x])
     }
 
     const loadJS = getComplexLevel(loadCSS.edited, ';LoadJS;', ';/LoadJS;')
     let finalLoadJS = ""
     for (let x = 0; x < loadJS.content.length; x++) {
-        finalLoadJS += addLoadJS(loadJS.content[x])
+        finalLoadJS += await addLoadJS(loadJS.content[x])
     }
 
 

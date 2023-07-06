@@ -24,8 +24,8 @@ const ListCycle = require('lixtools/list/cycle')
 const SapsarErrorPage = require('./util/SapsarErrorPage.js');
 const createServer = require('./util/CreateServer.js')
 const path = require('path');
-const { SAPSAR_LOADER_PATH } = require('./formats/SAPSAR_LOADER.JS');
-const { SAPSAR_TOUCH_PATH } = require('./formats/SAPSAR_TOUCH.JS');
+const { SAPSAR_LOADER_PATH } = require('./formats/SAPSAR_LOADER');
+const { SAPSAR_TOUCH_PATH } = require('./formats/SAPSAR_TOUCH');
 
 
 
