@@ -148,42 +148,9 @@ function SapsarLoader(id, res){
 
 
 
-async function addActiveCSS(component, triedAdding=false){
-    if (cache.css[component]){
-        return `<style data-acss>${cache.css[component]}</style>`
-    }
-    else {
-        return ""
-    }
-}
-
-async function addActiveJS(component, triedAdding=false){
-    if (cache.js[component]){
-        return `<script data-ajs>${cache.js[component]}</script>`
-    }
-    else {
-        return ""
-    }
-}
 
 
-async function addLoadCSS(component, triedAdding=false){
-    if (cache.css[component]){
-        return cache.css[component]
-    }
-    else {
-        return ""
-    }
-}
 
-async function addLoadJS(component, triedAdding=false){
-    if (cache.js[component]){
-        return cache.js[component] + "\n"
-    }
-    else {
-        return ""
-    }
-}
 
 
 async function renderPageStruct(page, content, build, static=false){
@@ -231,13 +198,17 @@ async function renderPageStruct(page, content, build, static=false){
     const ActiveCSS = getComplexLevel(render,';ActiveCSS;', ';/ActiveCSS;')
     let finalActiveCSS = ""
     for (let x = 0; x < ActiveCSS.content.length; x++) {
-        finalActiveCSS += await addActiveCSS(ActiveCSS.content[x])
+        if (cache.css[ActiveCSS.content[x]]){
+            finalActiveCSS += cache.css[ActiveCSS.content[x]]
+        }
     }
 
     const ActiveJS = getComplexLevel(ActiveCSS.edited, ';ActiveJS;', ';/ActiveJS;')
     let finalActiveJS = ""
     for (let x = 0; x < ActiveJS.content.length; x++) {
-        finalActiveJS += await addActiveJS(ActiveJS.content[x])
+        if (cache.js[ActiveJS.content[x]]){
+            finalActiveJS += (cache.js[ActiveJS.content[x]] + "\n")
+        }
     }
 
     const activeHeadData = getComplexLevel(ActiveJS.edited, ';ActiveHead;', ';/ActiveHead;')
@@ -249,17 +220,20 @@ async function renderPageStruct(page, content, build, static=false){
     const loadCSS = getComplexLevel(activeHeadData.edited, ';LoadCSS;', ';/LoadCSS;')
     let finalLoadCSS = ""
     for (let x = 0; x < loadCSS.content.length; x++) {
-        finalLoadCSS += await addLoadCSS(loadCSS.content[x])
+        if (cache.css[loadCSS.content[x]]){
+            finalLoadCSS += cache.css[loadCSS.content[x]]
+        }
     }
 
     const loadJS = getComplexLevel(loadCSS.edited, ';LoadJS;', ';/LoadJS;')
     let finalLoadJS = ""
     for (let x = 0; x < loadJS.content.length; x++) {
-        finalLoadJS += await addLoadJS(loadJS.content[x])
+        if (cache.js[loadJS.content[x]]){
+            finalLoadJS += (cache.js[loadJS.content[x]] + "\n")
+        }
     }
 
     let finalRender = loadJS.edited;
-
 
     if (finalShip){
 
@@ -331,9 +305,33 @@ async function renderPageStruct(page, content, build, static=false){
                             throw new Error(`At Compiler RPS: Invalid adding type at plugin "${plugin_name}": "${data[x].data.type}". Only "${addingTypes.join(', ')}" are valid.`)
                     }
                     break;
+                case 'replace':
+                    switch (data[x].data.type){
+                        case 'acss':
+                            finalActiveCSS = data[x].data.content
+                            break;
+                        case 'ajs':
+                            finalActiveJS = data[x].data.content
+                            break;
+                        case 'ahead':
+                            finalActiveHead = data[x].data.content
+                            break;
+                        case 'lcss':
+                            finalLoadCSS = data[x].data.content
+                            break;
+                        case 'ljs':
+                            finalLoadJS = data[x].data.content
+                            break;
+                        default:
+                            throw new Error(`At Compiler RPS: Invalid replacing type at plugin "${plugin_name}": "${data[x].data.type}". Only "${addingTypes.join(', ')}" are valid.`)
+                        }
+                    break;  
+
+                //default
                 default:
                     throw new Error(`At Compiler RPS: Invalid method at plugin "${plugin_name}": "${data[x].method}". Only "${methods.join(', ')}" are valid.`)
-
+                
+                
             }
         }
     }
@@ -385,6 +383,13 @@ async function renderPageStruct(page, content, build, static=false){
     }
 
 
+    if (finalActiveCSS){
+        finalActiveCSS = `<style data-acss>${finalActiveCSS}</style>`
+    }
+
+    if (finalActiveJS){
+        finalActiveJS = `<script data-ajs>${finalActiveJS}</script>`
+    }
 
 
 

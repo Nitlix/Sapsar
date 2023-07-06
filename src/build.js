@@ -220,7 +220,7 @@ async function map(command, port=null) {
         listener = app.listen(port)
 
         Log.sapsar(`Ready to serve on http://localhost:${port}. Any debugging or errors will be logged below.`)
-        Log.sapsar(`==============================================================================================================`)
+        Log.sapsar(`======================================================================================`)
     }
     else {
         Log.sapsar(`Build cache created successfully. Your app is ready to be deployed. Exiting...`)
