@@ -7,13 +7,13 @@ let app;
 
 switch(command){
     case "build":
-        app = map("gen_cache")
+        app = map("build")
         break;
     case "dev":
-        app = map("gen_cache", 3000)
+        app = map("dev", 3000)
         break;
     case "start":
-        app = map("", 80)
+        app = map("start", 80)
         break;
     default:
         console.log("Invalid command. Please use 'sapsar build', 'sapsar dev', or 'sapsar start'.")

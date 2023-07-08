@@ -1,7 +1,7 @@
 const Log = require('./util/Log.js');
 const {
     VERSION
-} = require('./formats/INFO.JS')
+} = require('./formats/INFO')
 Log.sapsar(`Starting Sapsar ${VERSION}...`)
 
 

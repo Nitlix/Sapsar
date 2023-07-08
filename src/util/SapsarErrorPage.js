@@ -1,14 +1,14 @@
-const { head, title, style, body, div, h1, h4, p, img, doctype, html } = require("../base/index")
+const { VERSION } = require("../formats/INFO")
+const { head, title, style, body, div, h1, h4, svg, path, p, img, doctype, html } = require("../base/index")
 
 function SapsarErrorPage(msg1, msg2, msg3, msg4){
     //remove everything from error stack after "at SapsarCompiler"
-
     return (
         doctype()+
         html(
             head(
                 title(
-                    "Sapsar"
+                    "Sapsar Error"
                 ),
                 style(
                     `
@@ -29,17 +29,26 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
 
                         .flex {
                             display: flex;
+                            flex-direction: row;
+                        }
+
+                        .flex.v {
                             flex-direction: column;
                         }
 
                         .errorBox {
                             padding: 2rem;
                             border-radius: 2rem;
-                            border: solid 1px #cccccc;
+                            border: solid 1px #4a4a4a;
                             gap: .5rem;
                             max-width: 50rem;
-                            background: white;
+                            background: #000;
                             position: relative;
+                            padding-bottom: 5rem;
+                        }
+
+                        .errorBox p {
+                            color: #9B9B9B;
                         }
 
                         .errorBox::after {
@@ -60,11 +69,11 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
 
 
                         .message {
-                            background: #000;
+                            background: #fff;
                             border-radius: 10rem;
                             width: max-content;
                             padding: 1rem 2rem;
-                            color: #fff;
+                            color: #000;
                         }
                     `
                 )
@@ -73,7 +82,7 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
                 div(
                     img(
                         {
-                            src: "https://cdn.nitlix.pro/sapsar/logo_plain.webp"
+                            src: "https://cdn.nitlix.pro/sapsar/logo_plain_dark.webp"
                         }
                     ),
                     div(
@@ -85,9 +94,37 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
                                 class: "message"
                             }
                         ),
-                        h1(
+                        
+                        div(
+                            svg(
+                                {
+                                    xmlns:"http://www.w3.org/2000/svg",
+                                    width: "24",
+                                    height: "24", 
+                                    viewBox:"0 0 24 24"
+                                },
+                                path(
+                                    {
+                                        fill: "#c92c20",
+                                        d: "M13 14h-2V9h2m0 9h-2v-2h2M1 21h22L12 2L1 21Z"
+                                    }
+                                )
+                            ),
+                                
+                            h1(
                             `${msg2} - ${msg3}`
+                            ),
+                            {
+                                class: "flex",
+                                styles: {
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    width: "max-content",
+                                    gap: ".5rem"
+                                }
+                            }
                         ),
+                        
                         p(
                             msg4
                         ),
@@ -97,12 +134,23 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
                                 style: 'display: none;'
                             }
                         ),
+                        p(
+                            `Using Sapsar V${VERSION}`,
+                            {
+                                styles: {
+                                    position: "absolute",
+                                    bottom: "2rem",
+                                    left: "2rem"
+                                }
+                            }
+                            
+                        ),
                         {
-                            class: "errorBox flex"
+                            class: "errorBox flex v"
                         }
                     ),
                     {
-                        class: "flex",
+                        class: "flex v",
                         style: "gap: .5rem; align-items: center;"
                     }
                 )
