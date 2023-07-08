@@ -22,6 +22,10 @@ const Log = {
         //red color 
         console.log(`\n${colors.bold} * ${colors.bgred} sapsar build error ${colors.reset} ${error}`)
     },
+    buildManualError: (msg) =>{
+        console.log(`\n${colors.bold} * ${colors.bgred} sapsar build error ${colors.reset} ${msg}\n`)
+    },
+    
     router: (error)=> {
         console.log(`${colors.bold} * ${colors.bgred} sapsar router error ${colors.reset} ${error}`)
     },

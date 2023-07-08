@@ -1,6 +1,7 @@
 const Log = require('./util/Log.js');
-const { VERSION }  = require('./formats/INFO.JS')
-
+const {
+    VERSION
+} = require('./formats/INFO.JS')
 Log.sapsar(`Starting Sapsar ${VERSION}...`)
 
 
@@ -24,33 +25,42 @@ const ListCycle = require('lixtools/list/cycle')
 const SapsarErrorPage = require('./util/SapsarErrorPage.js');
 const createServer = require('./util/CreateServer.js')
 const path = require('path');
-const { SAPSAR_LOADER_PATH } = require('./formats/SAPSAR_LOADER');
-const { SAPSAR_TOUCH_PATH } = require('./formats/SAPSAR_TOUCH');
+const {
+    SAPSAR_LOADER_PATH
+} = require('./formats/SAPSAR_LOADER.js');
+const {
+    SAPSAR_TOUCH_PATH
+} = require('./formats/SAPSAR_TOUCH.js');
+const Errors = require('./util/Errors.js');
 
 
 
 
 
-let listener;
 const pagesDirectory = path.join(__dirname, '../../../pages');
+const uniqueBuildCommands = ["dev", "build"]
+async function launchpad(command, port=3000) {
 
-async function map(command, port=null) {
+    Log.sapsar(`Recieved command: "${command}", and port: ${port}.`)
 
-
-    // Determine if the user is building or not
-
-    if (command == "gen_cache") {
-        // Leave it be, no cache taken, but cache will be written
+    if (uniqueBuildCommands.includes(command)) {
+        // Leave it be, no cache taken, but cache will be written!
         Log.sapsar("This process will generate a unique build file cache.")
     }
-    //check if it's an integer between 0 and 1000
 
-    else {
+    if (typeof port != "number" || port < 1 || port > 50000) {
+        Errors.portNotANumber();
+        return;
+    }
+
+    //set port to null so that the server isn't launched.
+    if (command == "build") {
+        port = null;
+    } else {
         setBuildStatus(false)
         try {
             await importCache()
-        }
-        catch (e) {
+        } catch (e) {
             Log.sapsar("No critical file cache file was found (at root/sapsar.js). If this code is in a deployment, expect build errors.")
             setBuildStatus(true)
         }
@@ -60,26 +70,32 @@ async function map(command, port=null) {
 
 
 
-
+    //timing start
 
     const startTime = Date.now();
 
     let app;
 
     app = createServer();
-    Log.sapsar("Created a server instance...")
+    // Log.sapsar("Created a server instance...")
 
 
-    Log.sapsar("Importing compiler middleware...")
-    ImportMiddleware()
-    
-    
+    // Log.sapsar("Importing compiler middleware...")
+    await ImportMiddleware()
+
+
+    let files;
+    files = await ScanDirectory(pagesDirectory);
+    try {
+        files = await ScanDirectory(pagesDirectory);
+    } catch (e) {
+        Errors.noPagesFolder();
+        return;
+    }
+
+
+
     Log.sapsar("Mapping your pages...")
-    const files = ScanDirectory(pagesDirectory);
-
-
-
-
     const NormalPages = [];
     const DynamicRoutes = [];
 
@@ -113,7 +129,7 @@ async function map(command, port=null) {
             })
 
             if (stop) {
-                Log.router(`The main router could not route this query scheme: ${data.access}. Please change your routing format so that the paths being accessed are not the same.`)
+                Log.router(`The main router could not map this query scheme: ${data.access}. Please change your routing format so that the paths being accessed are not the same.`)
                 return;
             }
 
@@ -150,7 +166,7 @@ async function map(command, port=null) {
         } catch (e) {
             //error then new line and then stack
             Log.savePageFunctionError(data.original, e)
-            
+
             app.get(`/${data.access}`, async (req, res) => {
                 res.status(400).end(await SapsarErrorPage(
                     `Something went wrong caching page function: ${data.original}`,
@@ -198,7 +214,7 @@ async function map(command, port=null) {
 
     app.get(`${SAPSAR_LOADER_PATH}:id`, async (req, res) => {
         SapsarLoader(req.params.id, res)
-    })  
+    })
 
     app.post(`${SAPSAR_TOUCH_PATH}:id`, async (req, res) => {
         await SapsarTouch(req.params.id, null, res, res)
@@ -217,40 +233,44 @@ async function map(command, port=null) {
     //compiler will process whether to export it or not
     await exportCache();
 
-    if(port){
-        listener = app.listen(port)
+    if (port) {
+        let success;
+        let tries = 0;
+        while (!success) {
+            try {
+                await new Promise((resolve, reject) => {
+                    const server = app.listen(port, () => {
+                      resolve();
+                    });
+            
+                    server.on('error', (error) => {
+                      reject(error);
+                    });
+                  });
+                success = true;
+            } catch (e) {
+                tries++;
+                port++;
+            }
+            if (tries > 100) {
+                Errors.tooManyLaunchAttempts();
+                return;
+            }
+        }
+         
+        if (tries > 0) Log.sapsar(`Instead of using the provided port, we moved to :${port} as the others were busy.`)
 
         Log.serve(port)
         Log.sapsar(`========================================================================================`)
-    }
-    else {
+    } else {
         Log.sapsar(`Build cache created successfully. Your app is ready to be deployed. Exiting...`)
     }
 
-    
+
     return app;
 
 }
 
 
 
-module.exports = map;
-
-// async function onUpdate(path) {
-//     await listener.close();
-//     clearCacheData();
-//     await clearTimeout(compilation_thread);
-//     compilation_thread = setTimeout(compile, 5);
-// }
-
-// const allDirectory = path.join(__dirname, '../');
-
-
-// const watcher = chokidar.watch(allDirectory, {
-//     ignored: /(^|[\/\\])\../, // ignore dotfiles
-//     persistent: true
-// });
-
-// watcher.on('change', path => {
-//     onUpdate(path);
-// });
+module.exports = launchpad;
