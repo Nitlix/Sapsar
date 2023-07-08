@@ -4,7 +4,7 @@ const getFileModel = require('../util/getFileModel');
 const JS_FOLDER = 'scripts';
 
 
-async function useJS(path, global=false) {
+async function useJS(path, preferredStore=path) {
     if (getBuildStatus()) {
         const production = getProductionStatus();
         let code;
@@ -15,10 +15,10 @@ async function useJS(path, global=false) {
             code = await getFileModel(path, JS_FOLDER);
         }
 
-        if (global) {
+        if (preferredStore === '*') {
             cache.js['*'] += code;
         } else {
-            cache.js[path] = code;
+            cache.js[preferredStore] = code;
         }
         return;
     }

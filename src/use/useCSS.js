@@ -8,7 +8,7 @@ const CleanCSS = require('clean-css');
 const CSSOptimiser = new CleanCSS({});
 
 
-async function useCSS(path, global=false){
+async function useCSS(path, preferredStore=path){
     if (getBuildStatus()) {
         const production = getProductionStatus();
         let code;
@@ -30,13 +30,11 @@ async function useCSS(path, global=false){
             code = css
         }
 
-
-
-        if (global){
+        if (preferredStore === '*'){
             cache.css['*'] += code
         }
         else {
-            cache.css[path] = code
+            cache.css[preferredStore] = code
         }
         return;
     }

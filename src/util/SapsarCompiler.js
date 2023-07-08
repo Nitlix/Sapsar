@@ -165,6 +165,7 @@ async function renderPageStruct(page, content, build, static=false){
      //handle ships
 
      let finalShip = ""
+     let shipCollections;
 
      for (let x in cache.ship){
         //get all x="" from content string
@@ -175,15 +176,17 @@ async function renderPageStruct(page, content, build, static=false){
         //turn the strings in an array of split strings
         //put them back together
         let actual = []
-        const matches = render.match(regex).map((val)=>{return val.replace(`${x}="`, "").replace('"', "")}).map((val)=>{return val.split(" ")})
+        shipCollections = render.match(regex).map((val)=>{return val.replace(`${x}="`, "").replace('"', "")}).map((val)=>{return val.split(" ")})
         //put them back together
         
-        for (let y = 0; y < matches.length; y++) {
-            const element = matches[y];
+        
+        for (let y = 0; y < shipCollections.length; y++) {
+            const element = shipCollections[y];
             actual = actual.concat(element)
         }
 
         for (let y in cache.ship[x]){
+            //check if y is
             if (actual.includes(y)){
                 finalShip += cache.ship[x][y]
             }

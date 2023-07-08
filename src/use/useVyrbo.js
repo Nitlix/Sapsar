@@ -1,14 +1,14 @@
 const { cache, getBuildStatus } = require('../util/SapsarCompiler');
 const SapsarVyrbo = require('../util/SapsarVyrbo');
 
-async function useVyrbo(path, global=false) {
+async function useVyrbo(path, preferredStore=path) {
     if (getBuildStatus()) {
         const code = await SapsarVyrbo(path)
         
-        if (global) {
+        if (preferredStore === '*') {
             cache.js['*'] += code
         } else {
-            cache.js[path] = code
+            cache.js[preferredStore] = code
         }
         return;
     }

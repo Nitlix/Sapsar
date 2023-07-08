@@ -8,7 +8,7 @@ const sass = require('sass');
 
 
 
-async function useSASS(path, global=false){    
+async function useSASS(path, preferredStore=path){
     if (getBuildStatus()) {
         
         const production = getProductionStatus();
@@ -21,11 +21,11 @@ async function useSASS(path, global=false){
             code = sass.compileString(await getFileModel(path, SASS_FOLDER), {style: "expanded"}).css.toString()
         }
 
-        if (global){
+        if (preferredStore === '*'){
             cache.css['*'] += code
         }
         else {
-            cache.css[path] = code
+            cache.css[preferredStore] = code
         }
         return;
     }

@@ -85,6 +85,7 @@ const conversions = {
     fontWeight: "font-weight",
 
     justifyContent: "justify-content",
+    justifySelf: "justify-self",
     letterSpacing: "letter-spacing",
     lineHeight: "line-height",
     listStyle: "list-style",

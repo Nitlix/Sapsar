@@ -316,9 +316,9 @@ function iframe(...args){
 }
 
 function img(...args){
-    const { content, props } = ParseArgs(args);
+    const { props } = ParseArgs(args);
     
-    return constructor(content, props, "img");
+    return miniConstructor(props, "img");
 }
 
 function input(...args){
