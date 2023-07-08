@@ -23,7 +23,8 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
                             display: grid;
                             min-height: 100vh;
                             place-items: center;
-
+                            background: black;
+                            color: white;
                         }
 
                         .flex {

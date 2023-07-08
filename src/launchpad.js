@@ -47,16 +47,7 @@ async function launchpad(command, port=3000) {
         // Leave it be, no cache taken, but cache will be written!
         Log.sapsar("This process will generate a unique build file cache.")
     }
-
-    if (typeof port != "number" || port < 1 || port > 50000) {
-        Errors.portNotANumber();
-        return;
-    }
-
-    //set port to null so that the server isn't launched.
-    if (command == "build") {
-        port = null;
-    } else {
+    else {
         setBuildStatus(false)
         try {
             await importCache()
@@ -67,6 +58,20 @@ async function launchpad(command, port=3000) {
 
         //check if it's an integer between 0 and 1000 (2nd arg)
     }
+
+    
+
+    if (typeof port != "number" || port < 1 || port > 50000) {
+        Errors.portNotANumber();
+        return;
+    }
+
+    //set port to null so that the server isn't launched.
+    if (command == "build") {
+        port = null;
+    }
+    
+    
 
 
 
@@ -144,7 +149,6 @@ async function launchpad(command, port=3000) {
             })
         }
     }
-
 
 
 
