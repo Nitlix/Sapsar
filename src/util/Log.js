@@ -1,4 +1,4 @@
-const colors = require('./ConsoleColors')
+const colors = require('./ConsoleColors.js')
 
 
 const stack = (error) => {

@@ -1,4 +1,4 @@
-const { cache } = require('../util/SapsarCompiler');
+const { cache } = require('../util/SapsarCompiler.js');
 
 const allowedShips = [
     "id",

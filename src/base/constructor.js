@@ -1,4 +1,4 @@
-const { StylesResolver } = require("../util/StylesResolver");
+const { StylesResolver } = require("../util/StylesResolver.js");
 
 function constructor(content="", props={}, sign="div"){
     //resolve styles

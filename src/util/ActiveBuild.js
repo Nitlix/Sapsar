@@ -1,4 +1,4 @@
-const { genChars } = require("./Random")
+const { genChars } = require("./Random.js")
 
 const builds = {
 

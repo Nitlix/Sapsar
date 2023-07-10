@@ -1,4 +1,4 @@
-const MergeProps = require("./MergeProps");
+const MergeProps = require("./MergeProps.js");
 
 function ParseArgs(args) {
     let content = ""

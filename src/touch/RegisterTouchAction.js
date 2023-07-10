@@ -1,6 +1,6 @@
 const {
     cache
-} = require("../util/SapsarCompiler")
+} = require("../util/SapsarCompiler.js")
 
 
 async function RegisterTouchAction(

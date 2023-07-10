@@ -1,6 +1,6 @@
-const { cache, getBuildStatus, getProductionStatus } = require('../util/SapsarCompiler');
+const { cache, getBuildStatus, getProductionStatus } = require('../util/SapsarCompiler.js');
 const UglifyJS = require('uglify-js');
-const getFileModel = require('../util/getFileModel');
+const getFileModel = require('../util/getFileModel.js');
 const JS_FOLDER = 'scripts';
 
 
