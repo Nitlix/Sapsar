@@ -1,7 +1,7 @@
-const ParseArgs = require('./ParseArgs.js')
-const MergeProps = require('./MergeProps.js')
-const { a, manualScript, link } = require('../base/index.js')
-const { genChars } = require('../util/Random.js')
+const ParseArgs = require('./ParseArgs')
+const MergeProps = require('./MergeProps')
+const { a, manualScript, link } = require('sapsar/base')
+const { genChars } = require('../util/Random')
 
 
 function Link(...args){

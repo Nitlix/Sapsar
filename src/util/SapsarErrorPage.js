@@ -1,5 +1,5 @@
-const { VERSION } = require("../formats/INFO.js")
-const { head, title, style, body, div, h1, h4, svg, path, p, img, doctype, html } = require("../base/index.js")
+const { VERSION } = require("../formats/INFO")
+const { head, title, style, body, div, h1, h4, svg, path, p, img, doctype, html } = require("../base/index")
 
 function SapsarErrorPage(msg1, msg2, msg3, msg4){
     //remove everything from error stack after "at SapsarCompiler"

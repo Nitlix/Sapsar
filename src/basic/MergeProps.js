@@ -1,4 +1,4 @@
-const { StylesConverter } = require("../util/StylesResolver.js");
+const { StylesConverter } = require("../util/StylesResolver");
 
 function MergeProps(props1, props2){
     //merge props2 into props1

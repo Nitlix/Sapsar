@@ -1,5 +1,5 @@
-const { cache } = require('../util/SapsarCompiler.js');
-const ParseArgs = require('../basic/ParseArgs.js');
+const { cache } = require('../util/SapsarCompiler');
+const ParseArgs = require('../basic/ParseArgs');
 
 async function useHead(...args){    
     const { content, props } = ParseArgs(args)

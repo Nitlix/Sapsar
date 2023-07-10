@@ -1,5 +1,5 @@
-const { cache, getBuildStatus } = require('../util/SapsarCompiler.js');
-const SapsarVyrbo = require('../util/SapsarVyrbo.js');
+const { cache, getBuildStatus } = require('../util/SapsarCompiler');
+const SapsarVyrbo = require('../util/SapsarVyrbo');
 
 async function useVyrbo(path, preferredStore=path) {
     if (getBuildStatus()) {

@@ -1,4 +1,4 @@
-const { cache } = require('../util/SapsarCompiler.js');
+const { cache } = require('../util/SapsarCompiler');
 
 async function reportCSS(page='index', css=[]){
     if (!cache.reports.css[page]) cache.reports.css[page] = []

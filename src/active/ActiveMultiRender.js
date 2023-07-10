@@ -1,4 +1,4 @@
-const { addProcess } = require("../util/ActiveBuild.js")
+const { addProcess } = require("../util/ActiveBuild")
 
 function ActiveRender(func, args, build){
     addProcess(

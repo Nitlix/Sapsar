@@ -1,4 +1,4 @@
-const { cache } = require('../util/SapsarCompiler.js');
+const { cache } = require('../util/SapsarCompiler');
 
 function usePlugin(plugin){
     if (!plugin.name || typeof plugin.exec !== 'function') {

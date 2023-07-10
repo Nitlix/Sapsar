@@ -1,12 +1,12 @@
-const { doctype, head, html, body, meta } = require("../base/index.js")
+const { doctype, head, html, body, meta } = require("sapsar/base")
 
 const Log = require("./Log")
-const SapsarErrorPage = require("./SapsarErrorPage.js")
-const { SHIP_TOUCH } = require("../formats/SAPSAR_TOUCH.js")
+const SapsarErrorPage = require("./SapsarErrorPage")
+const { SHIP_TOUCH } = require("../formats/SAPSAR_TOUCH")
 
 
-const getComplexLevel = require("./getComplexLevel.js")
-const { createUniqueBuild, getBuildProcesses, removeBuild } = require("./ActiveBuild.js")
+const getComplexLevel = require("./getComplexLevel")
+const { createUniqueBuild, getBuildProcesses, removeBuild } = require("./ActiveBuild")
 
 const fs = require("fs")
 const path = require("path")

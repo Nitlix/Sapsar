@@ -1,6 +1,6 @@
-const { cache, getBuildStatus, getProductionStatus } = require('../util/SapsarCompiler.js');
+const { cache, getBuildStatus, getProductionStatus } = require('../util/SapsarCompiler');
 
-const getFileModel = require('../util/getFileModel.js');
+const getFileModel = require('../util/getFileModel');
 const CSS_FOLDER = 'styles'
 
 

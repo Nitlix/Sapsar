@@ -1,8 +1,8 @@
 
 
-const { constructor, miniConstructor } = require("./constructor.js")
+const { constructor, miniConstructor } = require("./constructor")
 
-const ParseArgs = require ("sapsar/basic/ParseArgs.js")
+const ParseArgs = require ("sapsar/basic/ParseArgs")
 
 function doctype(){
     return "<!DOCTYPE html>";
