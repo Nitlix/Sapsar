@@ -138,7 +138,8 @@ function handleHead(page){
 function SapsarLoader(id, res){
     if (cache.loaders[id]){
         res.status(200).end(cache.loaders[id])
-        delete cache.loaders[id]
+        // Do not delete in case there's a double request
+        // delete cache.loaders[id]
     }
     else {
         res.status(404).end("{}")
@@ -187,8 +188,25 @@ async function renderPageStruct(page, content, build, static=false){
 
         for (let y in cache.ship[x]){
             //check if y is
-            if (actual.includes(y)){
-                finalShip += cache.ship[x][y]
+            if (y.includes(" ")){
+                //use shipcollections
+                const looking = y.split(" ")
+                for (let z = 0; z < shipCollections.length; z++) {
+                    const collection = shipCollections[z];
+                    let found = true;
+                    for (let w = 0; w < looking.length; w++) {
+                        const element = looking[w];
+                        if (!collection.includes(element)){
+                            found = false;
+                        }
+                    }
+                }
+            }
+
+            else {
+                if (actual.includes(y)){
+                    finalShip += cache.ship[x][y]
+                }
             }
         }
      }
