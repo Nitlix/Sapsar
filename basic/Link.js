@@ -3,7 +3,12 @@ const MergeProps = require('./MergeProps')
 const { a, manualScript, link } = require('sapsar/base')
 const { genChars } = require('../util/Random')
 
-
+/**
+ * Please make sure to pass "href" in props as normal.
+ * @param {string} Any content to put inside. This function is like a normal-behaving sapsar element.
+ * @returns {string} A specific link element that prefetches the link when it is in the viewport.
+ * @description This function is like a normal-behaving <a> tag, but it prefetches the link when it is in the viewport.
+ */
 function Link(...args){
     const { content, props } = ParseArgs(args)
 
