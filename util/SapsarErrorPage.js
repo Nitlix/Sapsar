@@ -1,4 +1,4 @@
-const { VERSION } = require("../formats/INFO")
+const { VERSION } = require("../formats/INFO.js")
 const { head, title, style, body, div, h1, h4, svg, path, p, img, doctype, html } = require("../base/index")
 
 function SapsarErrorPage(msg1, msg2, msg3, msg4){
