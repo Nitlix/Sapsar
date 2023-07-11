@@ -37,17 +37,16 @@ const Errors = require('./util/Errors.js');
 
 
 
-const pagesDirectory = path.join(__dirname, '../../../pages');
+const pagesDirectory = path.join(__dirname, '../../pages');
 const uniqueBuildCommands = ["dev", "build"]
-async function launchpad(command, port=3000) {
+async function launchpad(command, port = 3000) {
 
     Log.sapsar(`Recieved command: "${command}", and port: ${port}.`)
 
     if (uniqueBuildCommands.includes(command)) {
         // Leave it be, no cache taken, but cache will be written!
         Log.sapsar("This process will generate a unique build file cache.")
-    }
-    else {
+    } else {
         setBuildStatus(false)
         try {
             await importCache()
@@ -59,7 +58,7 @@ async function launchpad(command, port=3000) {
         //check if it's an integer between 0 and 1000 (2nd arg)
     }
 
-    
+
 
     if (typeof port != "number" || port < 1 || port > 50000) {
         Errors.portNotANumber();
@@ -70,8 +69,8 @@ async function launchpad(command, port=3000) {
     if (command == "build") {
         port = null;
     }
-    
-    
+
+
 
 
 
@@ -90,7 +89,6 @@ async function launchpad(command, port=3000) {
 
 
     let files;
-    files = await ScanDirectory(pagesDirectory);
     try {
         files = await ScanDirectory(pagesDirectory);
     } catch (e) {
@@ -244,13 +242,13 @@ async function launchpad(command, port=3000) {
             try {
                 await new Promise((resolve, reject) => {
                     const server = app.listen(port, () => {
-                      resolve();
+                        resolve();
                     });
-            
+
                     server.on('error', (error) => {
-                      reject(error);
+                        reject(error);
                     });
-                  });
+                });
                 success = true;
             } catch (e) {
                 tries++;
@@ -261,7 +259,7 @@ async function launchpad(command, port=3000) {
                 return;
             }
         }
-         
+
         if (tries > 0) Log.sapsar(`Instead of using the provided port, we moved to :${port} as the others were busy.`)
 
         Log.serve(port)

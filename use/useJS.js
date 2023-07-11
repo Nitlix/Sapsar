@@ -20,9 +20,9 @@ async function useJS(path, preferredStore=path) {
         } else {
             cache.js[preferredStore] = code;
         }
-        return;
+        return preferredStore;
     }
-    return;
+    return preferredStore;
 }
 
 

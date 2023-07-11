@@ -3,7 +3,7 @@ const path = require('path')
 
 async function getFileModel(filePath, model="styles") {
     return await fs.readFileSync(
-        path.join(__dirname, `../../../../${model}/` + filePath)
+        path.join(__dirname, `../../../${model}/` + filePath)
     ).toString()
 }
 

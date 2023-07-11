@@ -24,7 +24,7 @@ function createServer(useCors = "*") {
 
     //use public files
     
-    app.use(express.static(path.join(__dirname, '../../../../public')));
+    app.use(express.static(path.join(__dirname, '../../../public')));
 
 
 

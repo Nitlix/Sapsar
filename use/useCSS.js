@@ -36,9 +36,9 @@ async function useCSS(path, preferredStore=path){
         else {
             cache.css[preferredStore] = code
         }
-        return;
+        return preferredStore;
     }
-    return;
+    return preferredStore;
 }
 
 

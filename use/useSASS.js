@@ -27,9 +27,9 @@ async function useSASS(path, preferredStore=path){
         else {
             cache.css[preferredStore] = code
         }
-        return;
+        return preferredStore;
     }
-    return;
+    return preferredStore;
 }
 
 

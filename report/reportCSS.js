@@ -1,11 +1,8 @@
 const { cache } = require('../util/SapsarCompiler');
 
-async function reportCSS(page='index', css=[]){
+function reportCSS(page='index', cssPath){
     if (!cache.reports.css[page]) cache.reports.css[page] = []
-
-    css.forEach(component => {
-        cache.reports.css[page].push(component)
-    })
+    cache.reports.css[page].push(cssPath)
 }
 
 module.exports = reportCSS

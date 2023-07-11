@@ -71,7 +71,7 @@ let SapsarMiddleware = (req, res) => {return false;}
 
 async function ImportMiddleware(){
     try {
-        SapsarMiddleware = (await import(`../../../../middleware/middleware.js`)).default
+        SapsarMiddleware = (await import(`../../../middleware/middleware.js`)).default
         Log.compiler("Imported custom middleware!")
     }
     catch(e){
@@ -103,7 +103,7 @@ function getProductionStatus(){
 function handleHead(page){
     let content = ""
 
-    if (cache.head[page] != undefined){
+    if (cache.head[page]){
         content += cache.head[page]
     }
 
@@ -111,26 +111,35 @@ function handleHead(page){
 
     // add css report
     if (cache.reports.css[page]){
+        const final = ""
         for (let x = 0; x < cache.reports.css[page].length; x++) {
             const component = cache.reports.css[page][x];
-            
-            content += `<style data-rcss>${cache.css[component]}</style>`
+            if (cache.css[component]){
+                content += cache.css[component]
+            }
+        }
+        if (final){
+            content += `<style data-rcss>${final}</style>`
         }
     }
 
     // add js report
     if (cache.reports.js[page]){
+        const final = ""
         for (let x = 0; x < cache.reports.js[page].length; x++) {
             const component = cache.reports.js[page][x];
-
-            content += `<script data-rjs>${cache.js[component]}</script>`
+            if (cache.js[component]){
+                content += cache.js[component]
+            }
+        }
+        if (final){
+            content += `<script data-rjs>${final}</script>`
         }
     }
 
 
     return content
 }
-
 
 
 
@@ -154,7 +163,7 @@ function SapsarLoader(id, res){
 
 
 
-async function renderPageStruct(page, content, build, static=false){
+async function RPS(page, content, build, static=false){
 
     const render = body(
         content,
@@ -370,7 +379,7 @@ async function renderPageStruct(page, content, build, static=false){
     if(finalLoadCSS){
         let cssBundleName = `${build}.css`
         if (static){
-            cssBundleName = `static/${page}.css`
+            cssBundleName = `static_${page}.css`
         }
         else {
             setTimeout(()=>{
@@ -388,7 +397,7 @@ async function renderPageStruct(page, content, build, static=false){
     if(finalLoadJS){
         let jsBundleName = `${build}.js`
         if (static){
-            jsBundleName = `static/${page}.js`
+            jsBundleName = `static_${page}.js`
         }
         else {
             setTimeout(()=>{
@@ -417,9 +426,8 @@ async function renderPageStruct(page, content, build, static=false){
     
     //return final structure
 
-    return `
-        ${doctype()}
-        ${html(
+    return doctype() +
+        html({lang:"en"},
             head(
                 meta({name:"viewport",content:"width=device-width, initial-scale=1.0"}),
                 meta({charset:"UTF-8"}),
@@ -435,12 +443,8 @@ async function renderPageStruct(page, content, build, static=false){
                 loadBundle
             ),
             //final data (with body)
-            finalRender,
-            {
-                lang: "en"
-            },
-        )}
-    `
+            finalRender
+        )
 }
 
 
@@ -462,16 +466,8 @@ async function SapsarTouch(func, buildId, req, res){
 
 
 async function CachePage(page) {
-    if (!cache.pageCompilers[page]) {
-        // Log.sapsar(`Generating PAGE FUNCTION CACHE for ${page}...`)
-        cache.pageCompilers[page] = (await import(`../../../../pages/${page}.js`)).default
-    }
-
-    if (!cache.head[page]) {
-        // Log.sapsar(`Generating HEAD CACHE for ${page}...`)
-        cache.head[page] = ' '
-    }
-
+    // Log.sapsar(`Generating PAGE FUNCTION CACHE for ${page}...`)
+    cache.pageCompilers[page] = (await import(`../../../pages/${page}.js`)).default
     return;
 }
 
@@ -518,7 +514,7 @@ async function SapsarCompiler(page, req, res, dynamic=false){
                 
                 const Rendered_Page = await cache.pageCompilers[page](req, buildId, req.params)
 
-                const struct = await renderPageStruct(page, Rendered_Page, buildId, true)
+                const struct = await RPS(page, Rendered_Page, buildId, true)
 
                 res.write(struct)
                 finalContent += struct
@@ -561,7 +557,7 @@ async function SapsarCompiler(page, req, res, dynamic=false){
                 const Rendered_Page = await cache.pageCompilers[page](req, buildId, req.params)
 
                 
-                const struct = await renderPageStruct(page, Rendered_Page, buildId)
+                const struct = await RPS(page, Rendered_Page, buildId)
 
                 res.write(struct)
 
@@ -619,7 +615,7 @@ async function SapsarUnknownPageHandler(page, req, res){
 
         const Rendered_Page = await cache.pageCompilers['errors/_404'](req, buildId, req.params)
 
-        const struct = await renderPageStruct(page, Rendered_Page, buildId)
+        const struct = await RPS(page, Rendered_Page, buildId)
 
         res.write(struct)
 
@@ -655,7 +651,7 @@ async function SapsarUnknownPageHandler(page, req, res){
 
 // export compiler (as default) and cache
 
-const SAPSAR_CACHE_LOCATION = '../../../../sapsar.json'
+const SAPSAR_CACHE_LOCATION = '../../../sapsar.json'
 
 async function exportCache(){
     if (!building) return;
