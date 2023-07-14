@@ -13,6 +13,6 @@
 
 
 <h1 style="font-weight: 800">🖌️ Creator</h1>
-<p style="text-align: center; max-width: 40ch;">Made with 💛 by <a href="https://github.com/nitlix">Nitlix</a>, as a result of a Nitlix Labs Polygon experiment </p>
+<p style="text-align: center; max-width: 40ch;">Made with 💛 by <a href="https://github.com/nitlix">Nitlix</a>, as a result of a Nitlix Labs Polygon experiment for ClVs Inc.</p>
 
 </section>
