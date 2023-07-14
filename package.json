@@ -1,24 +1,22 @@
 {
   "name": "sapsar",
   "exports": {
-    "./base": "./src/base/index.js",
-    "./use/*": "./src/use/*.js",
-    "./touch/*": "./src/touch/*.js",
-    "./basic/*": "./src/basic/*.js",
-    "./active/*": "./src/active/*.js",
-    "./load/*": "./src/load/*.js",
-    "./build": "./src/build.js",
-    "./util/*": "./src/util/*.js",
-    "./ship/*": "./src/ship/*.js"
+    "./base": "./base/index.js",
+    "./use/*": "./use/*.js",
+    "./touch/*": "./touch/*.js",
+    "./basic/*": "./basic/*.js",
+    "./active/*": "./active/*.js",
+    "./load/*": "./load/*.js",
+    "./build": "./build.js",
+    "./util/*": "./util/*.js",
+    "./ship/*": "./ship/*.js",
+    "./launchpad": "./launchpad.js"
   },
-  "version": "0.2.8",
+  "version": "0.3.0",
   "description": "A lightspeed⚡, zero front-end JS📦 focused backend JS framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
-  "main": "src/exports.js",
-  "bin": {
-    "sapsar": "./src/cli.js"
-  },
+  "main": "src/launchpad.js",
   "scripts": {},
-  "author": "Nitlix S.T.",
+  "author": "NITLIX HOLDINGS S.T.",
   "license": "MIT",
   "dependencies": {
     "clean-css": "^5.3.2",
