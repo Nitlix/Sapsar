@@ -12,6 +12,13 @@ function constructor(content="", props={}, sign="div"){
 }
 
 function miniConstructor(props, sign){
+    //resolve styles
+    if (props.styles) {
+        if (!props.style) props.style = "";
+        props.style = StylesResolver(props.style, props.styles);
+        delete props.styles;
+    }
+
     return `<${sign} ${Object.keys(props).map(key => `${key}="${props[key]}"`).join(" ")} />`;
 }
 

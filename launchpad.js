@@ -66,7 +66,7 @@ async function launchpad(command, port = 3000) {
     }
 
     //set port to null so that the server isn't launched.
-    if (command == "build") {
+    if (command == "build" || command == "start") {
         port = null;
     }
 
