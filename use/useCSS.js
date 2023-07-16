@@ -1,4 +1,4 @@
-const { cache, getBuildStatus, getProductionStatus } = require('../util/SapsarCompiler');
+const { cache, getBuildStatus, getProductionStatus, SlotComponent } = require('../util/SapsarCompiler');
 
 const getFileModel = require('../util/getFileModel');
 const CSS_FOLDER = 'styles'
@@ -34,6 +34,7 @@ async function useCSS(path, preferredStore=path){
         else {
             code = css
         }
+    
 
         if (preferredStore === '*'){
             cache.css['*'] += code
@@ -41,6 +42,9 @@ async function useCSS(path, preferredStore=path){
         else {
             cache.css[preferredStore] = code
         }
+
+        SlotComponent(preferredStore)
+        
         return preferredStore;
     }
     return preferredStore;

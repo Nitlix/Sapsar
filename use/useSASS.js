@@ -1,4 +1,4 @@
-const { cache, getBuildStatus, getProductionStatus } = require('../util/SapsarCompiler');
+const { cache, getBuildStatus, getProductionStatus, SlotComponent } = require('../util/SapsarCompiler');
 
 const getFileModel = require('../util/getFileModel');
 const SASS_FOLDER = 'styles'
@@ -17,13 +17,14 @@ async function useSASS(path, preferredStore=path){
     if (getBuildStatus()) {
         
         const production = getProductionStatus();
+        const fileData = await getFileModel(path, SASS_FOLDER)
         let code;
     
         if (production){
-            code = sass.compileString(await getFileModel(path, SASS_FOLDER), {style: "compressed"}).css.toString()
+            code = sass.compileString(fileData, {style: "compressed"}).css.toString()
         }
         else {
-            code = sass.compileString(await getFileModel(path, SASS_FOLDER), {style: "expanded"}).css.toString()
+            code = sass.compileString(fileData, {style: "expanded"}).css.toString()
         }
 
         if (preferredStore === '*'){
@@ -32,6 +33,9 @@ async function useSASS(path, preferredStore=path){
         else {
             cache.css[preferredStore] = code
         }
+
+        SlotComponent(preferredStore)
+
         return preferredStore;
     }
     return preferredStore;

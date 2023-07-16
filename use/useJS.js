@@ -1,4 +1,4 @@
-const { cache, getBuildStatus, getProductionStatus } = require('../util/SapsarCompiler');
+const { cache, getBuildStatus, getProductionStatus, SlotComponent } = require('../util/SapsarCompiler');
 const UglifyJS = require('uglify-js');
 const getFileModel = require('../util/getFileModel');
 const JS_FOLDER = 'scripts';
@@ -25,6 +25,9 @@ async function useJS(path, preferredStore=path) {
         } else {
             cache.js[preferredStore] = code;
         }
+
+        SlotComponent(preferredStore)
+        
         return preferredStore;
     }
     return preferredStore;
