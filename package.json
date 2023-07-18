@@ -12,7 +12,7 @@
     "./ship/*": "./ship/*.js",
     "./launchpad": "./launchpad.js"
   },
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "A lightspeed⚡, zero front-end JS📦 focused backend JS framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
   "main": "src/launchpad.js",
   "scripts": {},
