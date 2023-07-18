@@ -10,6 +10,7 @@
     "./build": "./build.js",
     "./util/*": "./util/*.js",
     "./ship/*": "./ship/*.js",
+    "./import/*": "./import/*.js",
     "./launchpad": "./launchpad.js"
   },
   "version": "0.3.2",

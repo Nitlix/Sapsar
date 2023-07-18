@@ -1,4 +1,4 @@
-const { cache, getBuildStatus, SlotComponent } = require('../util/SapsarCompiler');
+const { cache, getBuildStatus } = require('../util/SapsarCompiler');
 const SapsarVyrbo = require('../util/SapsarVyrbo');
 
 async function useVyrbo(path, preferredStore=path) {
@@ -10,8 +10,6 @@ async function useVyrbo(path, preferredStore=path) {
         } else {
             cache.js[preferredStore] = code
         }
-        
-        SlotComponent(preferredStore)
 
         return preferredStore;
     }

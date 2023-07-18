@@ -21,21 +21,9 @@ let cache = {
         touch: SHIP_TOUCH
     },
 
-    slots: {
-        mappings: {
-
-        },
-        reverse: {
-
-        }
-    },
-
-
-
     pageCompilers: {
 
     },
-
 
     ship: {
 
@@ -481,40 +469,6 @@ async function CachePage(page) {
 }
 
 
-const listing = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-function SlotComponent(component){
-    // if (cache.slots.reverse[component]){
-    //     return cache.slots.reverse[component] // just return the component slot, because it already exists,
-    // }
-    // else {
-    //     // genereate a new slot. 
-    //     // go through each character in listing and try to assign it. 
-    //     // if all exist switch to using two characters, and if not to three, etc.
-
-    //     let slot = ""
-    //     let slotExists = true
-    //     let slotLength = 1
-    //     while (slotExists){
-    //         slot = ""
-    //         for (let x = 0; x < slotLength; x++){
-    //             slot += listing[Math.floor(Math.random() * listing.length)]
-    //         }
-    //         if (!cache.slots.forward[slot]){
-    //             slotExists = false
-    //         }
-    //         else {
-    //             slotLength++
-    //         }
-    //     }
-
-    //     cache.slots.mappings[slot] = component
-    //     cache.slots.reverse[component] = slot
-
-    //     return slot
-    // }
-}
-
-
 // Compiler Code
 async function SapsarCompiler(page, req, res, dynamic=false){
     const middleWareStop = await SapsarMiddleware(req, res)
@@ -720,8 +674,7 @@ module.exports = {
     CachePage,
     SapsarLoader,
     SapsarTouch,
-    building,
-    SlotComponent
+    building
 }
 
 
