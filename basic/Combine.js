@@ -1,10 +1,14 @@
-function Combine(/**/){
-    const args = arguments;
-    const values = Object.values(args);
+const ParseArgs = require("./ParseArgs")
 
-    const string = values.join("");
+/**
+ * @description Combines all deep-level arguments into a single string using ParseArgs.
+ * @param {...any} args The arguments to combine.
+ */
+function Combine(...args){
+    const { content } = ParseArgs(args)
     
-    return string;
+    return content;
 }
+
 
 module.exports = Combine;

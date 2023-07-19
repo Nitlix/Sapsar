@@ -10,6 +10,7 @@ const { createUniqueBuild, getBuildProcesses, removeBuild } = require("./ActiveB
 
 const fs = require("fs")
 const path = require("path")
+const Errors = require("./Errors")
 
 
 let cache = {
@@ -25,14 +26,10 @@ let cache = {
         noHelp: [],
     },
 
-
     pageCompilers: {
 
     },
 
-    ship: {
-
-    },
 
     head: {
         '*': ' '
@@ -58,12 +55,8 @@ let cache = {
         js: {}
     },
 
-    util: {
-        404: null
-    },
-
     plugins: {
-
+        '*': []
     }
 }
 
@@ -166,7 +159,13 @@ function SapsarLoader(id, res){
 
 
 
+function getActivePlugins(page){
+    const plugins = []
 
+    if (cache.plugins.page) plugins.push(...cache.plugins.page)
+    plugins.push(...cache.plugins['*'])
+    return plugins;
+}
 
 
 
@@ -219,17 +218,43 @@ async function RPS(page, content, build, static=false){
     const methods = ['add']
     const addingTypes = ['acss', 'ajs', 'ahead', 'lcss', 'ljs']
     
-    const plugins = Object.keys(cache.plugins)
-    await plugins.forEach(async plugin_name => {
-        const pluginFunc = cache.plugins[plugin_name];
-        const data = await pluginFunc(finalRender, page, build, {
-            ActiveCSS: ActiveCSSCode,
-            ActiveJS: ActiveJSCode,
-            ActiveHead: ActiveHeadCode,
-            LoadCSS: LoadCSSCode,
-            LoadJS: LoadJSCode,
-            FullPage: finalRender,
+    const plugins = getActivePlugins(page);
+
+    await plugins.forEach(async plugin_data => {
+        const pluginFunc = plugin_data.exec;
+        const pluginScopes = plugin_data.scopes;
+
+        const sendingData = {}
+
+        pluginScopes.forEach(scope => {
+            switch (scope){
+                case 'page':
+                    sendingData.page = page
+                    break;
+                case 'acss':
+                    sendingData.acss = ActiveCSSCode
+                    break;
+                case 'ajs':
+                    sendingData.ajs = ActiveJSCode
+                    break;
+                case 'ahead':
+                    sendingData.ahead = ActiveHeadCode
+                    break;
+                case 'lcss':
+                    sendingData.lcss = LoadCSSCode
+                    break;
+                case 'ljs':
+                    sendingData.ljs = LoadJSCode
+                    break;
+                default: 
+                    Errors.invalidPluginScope(scope, plugin_data.name, page)
+                    break;
+            }
         })
+        
+        
+        const data = await pluginFunc(sendingData, page, build, static)
+
 
         for (let x = 0; x < data.length; x++){
             switch (data[x].method){
