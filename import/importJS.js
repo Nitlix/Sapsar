@@ -7,3 +7,5 @@ const ActiveHead = require("../active/ActiveHead")
 export default function(src=null){
     return ActiveHead(`<script ijs src="${src}"></script>`)
 }
+
+module.exports = importJS

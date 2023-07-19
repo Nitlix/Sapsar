@@ -1,4 +1,4 @@
-const VERSION = "Alpha 0.3.3 D1"
+const VERSION = "Alpha 0.3.3 X1"
 
 module.exports = {
     VERSION

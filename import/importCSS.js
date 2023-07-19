@@ -7,3 +7,5 @@ const ActiveHead = require("../active/ActiveHead")
 export default function(src=null){
     return ActiveHead(`<link icss rel="stylesheet" href="${src}">`)
 }
+
+module.exports = importCSS

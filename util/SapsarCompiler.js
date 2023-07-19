@@ -83,6 +83,7 @@ async function ImportMiddleware(){
 
 
 let building = true;
+let production = true;
 
 function setBuildStatus(status){
     building = status
@@ -93,9 +94,13 @@ function getBuildStatus(){
 }
 
 function getProductionStatus(){
-    return true;
+    return production;
 }
 
+function setProductionStatus(status){
+    production = status;
+    return production;
+}
 
 
 function handleHead(page){
@@ -163,151 +168,68 @@ function SapsarLoader(id, res){
 
 async function RPS(page, content, build, static=false){
 
-    const render = body(
-        content,
-        {
-            class: "sapsar-dom"
-        }
-    )
 
-     //handle ships
-
-     let finalShip = ""
-     let shipCollections;
-
-     for (let x in cache.ship){
-        //get all x="" from content string
-        const regex = new RegExp(`${x}="([^"]*)"`, "g")
-        //get all matches
-        //get x names
-        //put them into an array
-        //turn the strings in an array of split strings
-        //put them back together
-        let actual = []
-        shipCollections = render.match(regex).map((val)=>{return val.replace(`${x}="`, "").replace('"', "")}).map((val)=>{return val.split(" ")})
-        //put them back together
-        
-        
-        for (let y = 0; y < shipCollections.length; y++) {
-            const element = shipCollections[y];
-            actual = actual.concat(element)
-        }
-
-        for (let y in cache.ship[x]){
-            //check if y is
-            if (y.includes(" ")){
-                //use shipcollections
-                const looking = y.split(" ")
-                for (let z = 0; z < shipCollections.length; z++) {
-                    const collection = shipCollections[z];
-                    let found = true;
-                    for (let w = 0; w < looking.length; w++) {
-                        const element = looking[w];
-                        if (!collection.includes(element)){
-                            found = false;
-                        }
-                    }
-                }
-            }
-
-            else {
-                if (actual.includes(y)){
-                    finalShip += cache.ship[x][y]
-                }
-            }
-        }
-     }
- 
-
-   
-
+    if (typeof content === "object"){
+        content = content.join("")
+    }
+    const render = `<body class="sapsar-dom">${content}</body>`
+  
 
   
     const ActiveCSS = getComplexLevel(render,';ActiveCSS;', ';/ActiveCSS;')
-    let finalActiveCSS = ""
+    let ActiveCSSCode = ""
     for (let x = 0; x < ActiveCSS.content.length; x++) {
         if (cache.css[ActiveCSS.content[x]]){
-            finalActiveCSS += cache.css[ActiveCSS.content[x]]
+            ActiveCSSCode += cache.css[ActiveCSS.content[x]]
         }
     }
 
     const ActiveJS = getComplexLevel(ActiveCSS.edited, ';ActiveJS;', ';/ActiveJS;')
-    let finalActiveJS = ""
+    let ActiveJSCode = ""
     for (let x = 0; x < ActiveJS.content.length; x++) {
         if (cache.js[ActiveJS.content[x]]){
-            finalActiveJS += (cache.js[ActiveJS.content[x]] + "\n")
+            ActiveJSCode += (cache.js[ActiveJS.content[x]] + "\n")
         }
     }
 
     const activeHeadData = getComplexLevel(ActiveJS.edited, ';ActiveHead;', ';/ActiveHead;')
-    let finalActiveHead = ""
+    let ActiveHeadCode = ""
     for (let x = 0; x < activeHeadData.content.length; x++) {
-        finalActiveHead += activeHeadData.content[x]
+        ActiveHeadCode += activeHeadData.content[x]
     }
 
     const loadCSS = getComplexLevel(activeHeadData.edited, ';LoadCSS;', ';/LoadCSS;')
-    let finalLoadCSS = ""
+    let LoadCSSCode = ""
     for (let x = 0; x < loadCSS.content.length; x++) {
         if (cache.css[loadCSS.content[x]]){
-            finalLoadCSS += cache.css[loadCSS.content[x]]
+            LoadCSSCode += cache.css[loadCSS.content[x]]
         }
     }
 
     const loadJS = getComplexLevel(loadCSS.edited, ';LoadJS;', ';/LoadJS;')
-    let finalLoadJS = ""
+    let LoadJSCode = ""
     for (let x = 0; x < loadJS.content.length; x++) {
         if (cache.js[loadJS.content[x]]){
-            finalLoadJS += (cache.js[loadJS.content[x]] + "\n")
+            LoadJSCode += (cache.js[loadJS.content[x]] + "\n")
         }
     }
 
     let finalRender = loadJS.edited;
 
-    if (finalShip){
-
-    // handle the shipping of ships lol
-        const complexShip = getComplexLevel(
-            loadJS.edited, 
-            ';Ship;',
-            ';/Ship;'
-        )
-
-        //method or default (active)
-        const method = complexShip.content[0] || 'active'
-
-        switch(method){
-            case 'active':
-                //add active css
-                finalActiveCSS += finalShip
-                break;
-            case 'load':
-                //add load css
-                finalLoadCSS += finalShip
-                break;
-            default:
-                throw new Error(`At Compiler RPS: Invalid shipping method: "${method}". Only "active" and "load" are valid.`)
-        }
-
-        finalRender = complexShip.edited
-
-    }
-   
-
-
-
-
     //let the plugins do their work
     const methods = ['add']
     const addingTypes = ['acss', 'ajs', 'ahead', 'lcss', 'ljs']
     
-    for (plugin_name in cache.plugins) {
+    const plugins = Object.keys(cache.plugins)
+    await plugins.forEach(async plugin_name => {
         const pluginFunc = cache.plugins[plugin_name];
         const data = await pluginFunc(finalRender, page, build, {
-            ActiveCSS: finalActiveCSS,
-            ActiveJS: finalActiveJS,
-            ActiveHead: finalActiveHead,
-            LoadCSS: finalLoadCSS,
-            LoadJS: finalLoadJS
+            ActiveCSS: ActiveCSSCode,
+            ActiveJS: ActiveJSCode,
+            ActiveHead: ActiveHeadCode,
+            LoadCSS: LoadCSSCode,
+            LoadJS: LoadJSCode,
+            FullPage: finalRender,
         })
 
         for (let x = 0; x < data.length; x++){
@@ -315,19 +237,19 @@ async function RPS(page, content, build, static=false){
                 case 'add':
                     switch (data[x].data.type){
                         case 'acss':
-                            finalActiveCSS += data[x].data.content
+                            ActiveCSSCode += data[x].data.content
                             break;
                         case 'ajs':
-                            finalActiveJS += data[x].data.content
+                            ActiveJSCode += data[x].data.content
                             break;
                         case 'ahead':
-                            finalActiveHead += data[x].data.content
+                            ActiveHeadCode += data[x].data.content
                             break;
                         case 'lcss':
-                            finalLoadCSS += data[x].data.content
+                            LoadCSSCode += data[x].data.content
                             break;
                         case 'ljs':
-                            finalLoadJS += data[x].data.content
+                            LoadJSCode += data[x].data.content
                             break;
                         default:
                             throw new Error(`At Compiler RPS: Invalid adding type at plugin "${plugin_name}": "${data[x].data.type}". Only "${addingTypes.join(', ')}" are valid.`)
@@ -336,19 +258,19 @@ async function RPS(page, content, build, static=false){
                 case 'replace':
                     switch (data[x].data.type){
                         case 'acss':
-                            finalActiveCSS = data[x].data.content
+                            ActiveCSSCode = data[x].data.content
                             break;
                         case 'ajs':
-                            finalActiveJS = data[x].data.content
+                            ActiveJSCode = data[x].data.content
                             break;
                         case 'ahead':
-                            finalActiveHead = data[x].data.content
+                            ActiveHeadCode = data[x].data.content
                             break;
                         case 'lcss':
-                            finalLoadCSS = data[x].data.content
+                            LoadCSSCode = data[x].data.content
                             break;
                         case 'ljs':
-                            finalLoadJS = data[x].data.content
+                            LoadJSCode = data[x].data.content
                             break;
                         default:
                             throw new Error(`At Compiler RPS: Invalid replacing type at plugin "${plugin_name}": "${data[x].data.type}". Only "${addingTypes.join(', ')}" are valid.`)
@@ -362,9 +284,7 @@ async function RPS(page, content, build, static=false){
                 
             }
         }
-    }
-
-
+    })
 
 
 
@@ -374,7 +294,10 @@ async function RPS(page, content, build, static=false){
     // GENERATE FINAL BUNDLES
     //If any aren't empty, add them to the cache
     let loadBundle = ""
-    if(finalLoadCSS){
+
+
+
+    if(LoadCSSCode){
         let cssBundleName = `${build}.css`
         if (static){
             cssBundleName = `static_${page}.css`
@@ -387,12 +310,12 @@ async function RPS(page, content, build, static=false){
             }, 10000)
         }
 
-        cache.loaders[cssBundleName] = finalLoadCSS
+        if (!cache.loaders[cssBundleName]) cache.loaders[cssBundleName] = LoadCSSCode
+
         loadBundle += `<link rel="stylesheet" data-lcss href="/_sapsar/loader/${build}.css" />`
-        //expire after 10 seconds
     }
 
-    if(finalLoadJS){
+    if(LoadJSCode){
         let jsBundleName = `${build}.js`
         if (static){
             jsBundleName = `static_${page}.js`
@@ -405,44 +328,40 @@ async function RPS(page, content, build, static=false){
             }, 10000)
         }
         
-        cache.loaders[jsBundleName] = finalLoadJS
+        if (!cache.loaders[jsBundleName]) cache.loaders[jsBundleName] = LoadJSCode
+
 
         loadBundle += `<script data-ljs src="/_sapsar/loader/${build}.js"></script>`
     }
 
 
-    if (finalActiveCSS){
-        finalActiveCSS = `<style data-acss>${finalActiveCSS}</style>`
+    if (ActiveCSSCode){
+        ActiveCSSCode = `<style data-acss>${ActiveCSSCode}</style>`
     }
 
-    if (finalActiveJS){
-        finalActiveJS = `<script data-ajs>${finalActiveJS}</script>`
+    if (ActiveJSCode){
+        ActiveJSCode = `<script data-ajs>${ActiveJSCode}</script>`
     }
-
-
 
     
     //return final structure
 
-    return doctype() +
-        html({lang:"en"},
-            head(
-                meta({name:"viewport",content:"width=device-width, initial-scale=1.0"}),
-                meta({charset:"UTF-8"}),
-                `<script data-sapsar>const build = {id: "${build}"}</script>`,
-                finalActiveHead,
-                handleHead(page),
+    return `<!DOCTYPE html><html lang="en">${head(
+        `<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />`,
+        `<script data-sapsar>const build = {id: "${build}"}</script>`,
+        ActiveHeadCode,
+        
+        handleHead(page),
+        
+        // Active stuff
+        ActiveCSSCode,
+        ActiveJSCode,
 
-                // Active stuff
-                finalActiveCSS,
-                finalActiveJS,
-
-                // Loaded stuff
-                loadBundle
-            ),
-            //final data (with body)
-            finalRender
-        )
+        // Loaded stuff
+        loadBundle
+    
+    //Final body render below
+    )}${finalRender}</html>`
 }
 
 
@@ -453,7 +372,7 @@ async function RPS(page, content, build, static=false){
 async function SapsarTouch(func, buildId, req, res){
     if (cache.touch.actions[func]){
         const data = await cache.touch.actions[func](req.body, req)
-        await res.end(JSON.stringify(data))
+        await res.end(JSON.stringify(data)) 
     }
     else {
         res.end(JSON.stringify({"execute": "console.error('Sapsar could not find this Touch Action.')"}))
@@ -471,9 +390,12 @@ async function CachePage(page) {
 
 // Compiler Code
 async function SapsarCompiler(page, req, res, dynamic=false){
+
     const middleWareStop = await SapsarMiddleware(req, res)
 
     if (middleWareStop == false){
+
+        res.setHeader('Content-Type', 'text/html')
 
         const withQuery = req.originalUrl
         const path = req.path
@@ -498,7 +420,6 @@ async function SapsarCompiler(page, req, res, dynamic=false){
         else {
             // Dynamic page, or generate static page    
 
-
             // Static page 
 
             if (cache.static.requests.includes(page)){
@@ -512,6 +433,7 @@ async function SapsarCompiler(page, req, res, dynamic=false){
 
                 const struct = await RPS(page, Rendered_Page, buildId, true)
 
+                
                 res.write(struct)
                 finalContent += struct
 
@@ -532,11 +454,13 @@ async function SapsarCompiler(page, req, res, dynamic=false){
 
                 // everything executed
                 // ending response
+                res.end()
                 removeBuild(buildId)
-                res.end()   
-                
+                  
+
 
                 cache.static.pages[path] = finalContent
+
 
 
                 // End page render
@@ -548,13 +472,15 @@ async function SapsarCompiler(page, req, res, dynamic=false){
             try {
                 // New page render
 
+
+
                 const buildId = createUniqueBuild(res)
                             
                 const Rendered_Page = await cache.pageCompilers[page](req, buildId, req.params)
 
-                
-                const struct = await RPS(page, Rendered_Page, buildId)
 
+                const struct = await RPS(page, Rendered_Page, buildId)
+                
                 res.write(struct)
 
 
@@ -572,9 +498,10 @@ async function SapsarCompiler(page, req, res, dynamic=false){
 
                 // everything executed
                 // ending response
-                removeBuild(buildId)
-                
+
                 res.end()
+                removeBuild(buildId)
+                return;
 
             }
 
@@ -671,6 +598,7 @@ module.exports = {
     setBuildStatus,
     getBuildStatus,
     getProductionStatus,
+    setProductionStatus,
     CachePage,
     SapsarLoader,
     SapsarTouch,
