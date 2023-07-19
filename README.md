@@ -5,7 +5,7 @@
 
 <h1 style="font-weight: 800"><i>If there was a framework...</i></h1>
 <p style="text-align: center; max-width: 40ch;">Sapsar is a modern JS framework for building complex and astonishing websites with user and developer experience put first.</p>
-<p style="text-align: center; max-width: 40ch;">Latest version: <span style="background: #762c55; font-weight: 900; color: white; border-radius: .25rem;"> Release 0.3.0 </span></p>
+<p style="text-align: center; max-width: 40ch;">Latest version: <span style="background: #762c55; font-weight: 900; color: white; border-radius: .25rem;"> 0.3.3 Alpha X3 </span></p>
 
 
 <h1 style="font-weight: 800">📖 Docs</h1>

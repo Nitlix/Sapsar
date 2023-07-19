@@ -119,6 +119,8 @@ const conversions = {
     pageBreakInside: "page-break-inside",
     
     perspectiveOrigin: "perspective-origin",
+    placeItems: "place-items",
+    placeSelf: "place-self",
 
     pointerEvents: "pointer-events",
     tabSize: "tab-size",

@@ -12,19 +12,22 @@ const JS_FOLDER = 'scripts';
 async function useJS(path, preferredStore=path) {
     if (getBuildStatus()) {
         const production = getProductionStatus();
-        let code;
+        let code = await getFileModel(path, JS_FOLDER);
+
+        console.log({code})
+        
         if (production){
-            code = UglifyJS.minify(await getFileModel(path, JS_FOLDER)).code;
+            code = UglifyJS.minify(code).code;
         }
-        else {
-            code = await getFileModel(path, JS_FOLDER);
-        }
+
+        console.log({code})
 
         if (preferredStore === '*') {
             cache.js['*'] += code;
         } else {
             cache.js[preferredStore] = code;
         }
+        
         return preferredStore;
     }
     return preferredStore;

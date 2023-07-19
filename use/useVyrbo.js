@@ -10,6 +10,7 @@ async function useVyrbo(path, preferredStore=path) {
         } else {
             cache.js[preferredStore] = code
         }
+
         return preferredStore;
     }
     return preferredStore;
