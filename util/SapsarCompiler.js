@@ -556,18 +556,55 @@ async function SapsarCompiler(page, req, res, dynamic=false){
 
 
 async function SapsarUnknownPageHandler(page, req, res){
-    if (cache.pageCompilers['errors/_404']){
+    
+    //get full request path
+    let found;
+    let foundPath;
+    let path = req.url.split("/")
+    path.shift()
 
+    path = path.map((item, index)=>{
+        if (index != path.length - 1) return item+"/"
+        
+        return item
+    })
+    
+    while (!found){
+        path.pop()
+        const dir = path.join("")
+        
+        if (cache.pageCompilers[`${dir}404`]){
+            found = true;
+            foundPath = dir + "404"
+        }
+
+        if (path.length == 0){
+            break;
+        }
+    }
+    
+    if (foundPath){
         //Custom 404 page
 
         //render
+
+        //no help
+        if(cache.custom.noHelp.includes(foundPath)){
+            await cache.pageCompilers[foundPath](req, res)
+            return;
+        }
+        //with help
+
+        res.setHeader('Content-Type', 'text/html')
+        res.status(404)
         
         const buildId = createUniqueBuild(res)
 
-        const Rendered_Page = await cache.pageCompilers['errors/_404'](req, buildId, req.params)
-
-        const struct = await RPS(page, Rendered_Page, buildId)
-
+        const struct = await RPS(
+            page, 
+            await cache.pageCompilers[foundPath](req, buildId, req.params), 
+            buildId
+        )
         res.write(struct)
 
 
@@ -581,9 +618,10 @@ async function SapsarUnknownPageHandler(page, req, res){
         }
 
         // everything executed
-
+        res.end();
         removeBuild(buildId)
-        res.end()
+        
+        return;
 
 
     }
@@ -594,9 +632,11 @@ async function SapsarUnknownPageHandler(page, req, res){
             "Page not found",
             `Try re-checking your app's page files, and seeing if the one you're looking for exists, or simply try relaunching your app.
             
-            Want a custom 404 error page? Create a file called <b>_404.js</b> in a seperate folder called <b>errors</b> inside your <b>pages</b> folder, and export a simple page function with two inputs: <b>data</b> and <b>page</b>.
+            Want a custom 404 error page? Create a file called <b>404.js</b> in a folder local to your other pages, and export a simple page function with two inputs: <b>data</b> and <b>page</b>.
             `
         ))
+
+        return;
     }
 }
 

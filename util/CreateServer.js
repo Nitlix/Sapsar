@@ -26,9 +26,6 @@ function createServer(useCors = "*") {
     app.use(express.static(path.join(__dirname, '../../../public')));
 
 
-
-
-
     //return app
 
     return app;

@@ -12,6 +12,10 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
                 ),
                 style(
                     `
+                        :root {
+                            --gradient: linear-gradient(90deg, rgb(69,66,255) 0%, rgb(56,101,251) 8%, rgb(55,104,251) 11%, rgb(10,212,158) 38%, rgb(174,91,249) 56%, rgb(141, 90,249) 69%, rgb(255,0,255) 88%, rgb(255,255, 0) 100%);
+                        }
+
                         * {
                             padding: 0;
                             margin: 0;
@@ -60,7 +64,7 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
                             right: 0;
                             bottom: -.25rem;
                             border-radius: 2rem;
-                            background: linear-gradient(90deg, rgba(238,146,11,1) 0%, rgba(238,0,68,1) 100%);
+                            background: var(--gradient);
                         }
 
                         img {
@@ -72,7 +76,7 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
                             background: #fff;
                             border-radius: 10rem;
                             width: max-content;
-                            padding: 1rem 2rem;
+                            padding: .75rem 2rem;
                             color: #000;
                         }
                     `
@@ -135,7 +139,7 @@ function SapsarErrorPage(msg1, msg2, msg3, msg4){
                             }
                         ),
                         p(
-                            `Using Sapsar V${VERSION}`,
+                            `Using Sapsar ${VERSION}`,
                             {
                                 styles: {
                                     position: "absolute",
