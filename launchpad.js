@@ -34,12 +34,19 @@ const {
 const Errors = require('./util/Errors.js');
 
 
-
-
-
 const pagesDirectory = path.join(__dirname, '../../pages');
 const uniqueBuildCommands = ["dev", "build"]
-async function launchpad(command, port = 3000) {
+
+/**
+ * @param {string} command The command to run. (Default: "dev") List: "dev", "build", "start"
+ * @param {number} port The port to run the server on. (Default: 3000)
+ * @description The main function to launch your Sapsar app.
+ * @command The command "dev" will read all the resources and start a server. Will use the port.
+ * @command The command "build" will only export a sapsar.json file with all the file parametric data. Will ignore the port.
+ * @command The command "start" will only start a server using the exported sapsar.json file. Will ignore the port.
+ * @returns {object} The Express app router instance, to be exported for deployment.
+*/
+async function launchpad(command="dev", port = 3000) {
 
     Log.sapsar(`Recieved command: "${command}", and port: ${port}.`)
 

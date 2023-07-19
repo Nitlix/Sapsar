@@ -26,14 +26,10 @@ let cache = {
         noHelp: [],
     },
 
-
     pageCompilers: {
 
     },
 
-    ship: {
-
-    },
 
     head: {
         '*': ' '
@@ -57,10 +53,6 @@ let cache = {
     reports: {
         css: {},
         js: {}
-    },
-
-    util: {
-        404: null
     },
 
     plugins: {

@@ -2,14 +2,10 @@ const fs = require('fs');
 const UglifyJS = require('uglify-js');
 const path = require('path');
 
-let copyright = "Copyright © 2020-2023 Nitlix S.T. All rights reserved."
-copyright = `// ${copyright}
-// Sapsar - the perfect web framework.
+let copyright = `// Copyright © 2023 Sapsar S.T.
+// Under the managment and ownership of Nitlix S.T. All rights reserved.
 
 `
-
-const newline = "\n";
-
 
 function ScanDirectory(directoryPath) {
     let filenames = [];
