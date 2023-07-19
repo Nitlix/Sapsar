@@ -1,4 +1,4 @@
-const { doctype, head, html, body, meta } = require("sapsar/base")
+const { head, body } = require("sapsar/base")
 
 const Log = require("./Log")
 const SapsarErrorPage = require("./SapsarErrorPage")
@@ -20,6 +20,11 @@ let cache = {
         '*': '',
         touch: SHIP_TOUCH
     },
+
+    custom: {
+        noHelp: [],
+    },
+
 
     pageCompilers: {
 
@@ -167,13 +172,7 @@ function SapsarLoader(id, res){
 
 
 async function RPS(page, content, build, static=false){
-
-
-    if (typeof content === "object"){
-        content = content.join("")
-    }
-    const render = `<body class="sapsar-dom">${content}</body>`
-  
+    const render = body({class: "sapsar-dom"}, content)
 
   
     const ActiveCSS = getComplexLevel(render,';ActiveCSS;', ';/ActiveCSS;')
@@ -395,7 +394,6 @@ async function SapsarCompiler(page, req, res, dynamic=false){
 
     if (middleWareStop == false){
 
-        res.setHeader('Content-Type', 'text/html')
 
         const withQuery = req.originalUrl
         const path = req.path
@@ -427,81 +425,110 @@ async function SapsarCompiler(page, req, res, dynamic=false){
 
                 Log.compiler(`Generating STATIC PAGE CACHE for ${page} (SPEC: ${path})...`)
 
-                const buildId = createUniqueBuild(res)
                 
-                const Rendered_Page = await cache.pageCompilers[page](req, buildId, req.params)
+                try {
+                    // No help from the compiler, let the page compiler handle it completely.
+                    if (cache.custom.noHelp.includes(page)){
+                        const Rendered_Page = await cache.pageCompilers[page](req, res)
 
-                const struct = await RPS(page, Rendered_Page, buildId, true)
+                        cache.static.pages[path] = Rendered_Page;
+                        return;
+                    }
+                    else {
+                        res.setHeader('Content-Type', 'text/html')
 
-                
-                res.write(struct)
-                finalContent += struct
+                        const buildId = createUniqueBuild()
 
+                        //Render page
+                        let struct = await RPS(
+                            page, 
+                            await cache.pageCompilers[page](req, buildId, req.params), 
+                            buildId, 
+                            true
+                        )
 
-                //post render
-                //run active build scripts
+                        res.write(struct)
+                        finalContent += struct
 
-                
+                        //post render
+                        //run active build scripts
 
-                let activeBuildProcesses = getBuildProcesses(buildId)
-                for (let x = 0; x < activeBuildProcesses.length; x++) {
-                    let processData = activeBuildProcesses[x]
-                    let processContent = await processData.process(processData.args)
+                        
 
-                    res.write(processContent)
-                    finalContent += processContent
+                        let activeBuildProcesses = getBuildProcesses(buildId)
+                        for (let x = 0; x < activeBuildProcesses.length; x++) {
+                            let processData = activeBuildProcesses[x]
+                            let processContent = await processData.process(processData.args)
+
+                            res.write(processContent)
+                            finalContent += processContent
+                        }
+
+                        // everything executed
+                        // ending response
+                        res.end()
+                        removeBuild(buildId) 
+                        cache.static.pages[path] = finalContent
+
+                        return;
+                    }
+                }
+                catch(err){
+                    Log.renderError(page, err)
+
+                    //dispay error page
+
+                    // const stack = err.stack.split("at SapsarCompiler")[0]
+                    const stack = err.stack
+
+                    res.status(500).end(
+                        SapsarErrorPage(`Error while rendering static page: ${page}`, err.name, err.message, stack)
+                    )
+
+                    return;
                 }
 
-                // everything executed
-                // ending response
-                res.end()
-                removeBuild(buildId)
-                  
 
-
-                cache.static.pages[path] = finalContent
-
-
-
-                // End page render
-                // End page caching
-                return
             }
         
 
             try {
                 // New page render
-
-
-
-                const buildId = createUniqueBuild(res)
-                            
-                const Rendered_Page = await cache.pageCompilers[page](req, buildId, req.params)
-
-
-                const struct = await RPS(page, Rendered_Page, buildId)
                 
-                res.write(struct)
-
-
-                //post render
-                //run active build scripts
-
-                
-
-                let activeBuildProcesses = getBuildProcesses(buildId)
-                for (let x = 0; x < activeBuildProcesses.length; x++) {
-                    let processData = activeBuildProcesses[x]
-
-                    res.write(await processData.process(processData.args))
+                if (cache.custom.noHelp.includes(page)){
+                    await cache.pageCompilers[page](req, res);
+                    return;
                 }
+                else {
+                    const buildId = createUniqueBuild(res)
+                                
+                    const struct = await RPS(
+                        page, 
+                        await cache.pageCompilers[page](req, buildId, req.params),
+                        buildId
+                    )
+                    
+                    res.write(struct)
 
-                // everything executed
-                // ending response
+                    //post render
+                    //run active build scripts
 
-                res.end()
-                removeBuild(buildId)
-                return;
+                    
+
+                    let activeBuildProcesses = getBuildProcesses(buildId)
+                    for (let x = 0; x < activeBuildProcesses.length; x++) {
+                        let processData = activeBuildProcesses[x]
+
+                        res.write(await processData.process(processData.args))
+                    }
+
+                    // everything executed
+                    // ending response
+
+                    res.end()
+                    removeBuild(buildId)
+                    return;
+                }
 
             }
 
@@ -515,12 +542,13 @@ async function SapsarCompiler(page, req, res, dynamic=false){
                 // const stack = err.stack.split("at SapsarCompiler")[0]
                 const stack = err.stack
 
-                res.status(400).end(
+                res.status(500).end(
                     SapsarErrorPage(`Error while rendering page: ${page}`, err.name, err.message, stack)
                 )
+
+                return;
             }
         }
-
     }
 }
 

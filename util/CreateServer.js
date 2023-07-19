@@ -1,3 +1,4 @@
+const { VERSION } = require("../formats/INFO")
 const express = require('express');
 const cors = require('cors');
 
@@ -10,16 +11,14 @@ function createServer(useCors = "*") {
 
     app.disable('x-powered-by');
 
-
     app.use(cors({
         origin: useCors
     }));
 
     app.use((req, res, next) => {
-        res.append('x-powered-by', 'Sapsar')
+        res.append('x-powered-by', `Sapsar ${VERSION}`)
         next();
     });
-
 
 
     //use public files

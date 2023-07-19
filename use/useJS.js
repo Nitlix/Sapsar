@@ -14,9 +14,13 @@ async function useJS(path, preferredStore=path) {
         const production = getProductionStatus();
         let code = await getFileModel(path, JS_FOLDER);
 
+        console.log({code})
+        
         if (production){
             code = UglifyJS.minify(code).code;
         }
+
+        console.log({code})
 
         if (preferredStore === '*') {
             cache.js['*'] += code;
