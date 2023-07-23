@@ -1,5 +1,6 @@
 const { VERSION } = require("../formats/INFO")
 const express = require('express');
+const cookieParser = require("cookie-parser");
 const cors = require('cors');
 
 
@@ -14,6 +15,8 @@ function createServer(useCors = "*") {
     app.use(cors({
         origin: useCors
     }));
+
+    app.use(cookieParser());
 
     app.use((req, res, next) => {
         res.append('x-powered-by', `Sapsar ${VERSION}`)
