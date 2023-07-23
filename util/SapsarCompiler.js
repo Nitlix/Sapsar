@@ -22,6 +22,10 @@ let cache = {
         touch: SHIP_TOUCH
     },
 
+    html: {
+        '*': ''
+    },
+
     custom: {
         noHelp: [],
     },
@@ -76,6 +80,11 @@ async function ImportMiddleware(){
 }
 
 
+
+function getHTML(component){
+    if (cache.html[component]) return cache.html[component]
+    return "";
+}
 
 
 
@@ -170,7 +179,7 @@ function getActivePlugins(page){
 
 
 
-async function RPS(page, content, build, static=false){
+async function RPS(page, content, build, req, res, static=false){
     const render = body({class: "sapsar-dom"}, content)
 
   
@@ -246,6 +255,22 @@ async function RPS(page, content, build, static=false){
                 case 'ljs':
                     sendingData.ljs = LoadJSCode
                     break;
+                case 'request':
+                    sendingData.request = req
+                    break;
+                case 'response':
+                    sendingData.response = res
+                    break;
+                case 'build':
+                    sendingData.build = build
+                    break;
+                case 'static':
+                    sendingData.static = static
+                    break;
+                case 'render':
+                    sendingData.render = finalRender
+                    break;
+
                 default: 
                     Errors.invalidPluginScope(scope, plugin_data.name, page)
                     break;
@@ -467,9 +492,11 @@ async function SapsarCompiler(page, req, res, dynamic=false){
                         //Render page
                         let struct = await RPS(
                             page, 
-                            await cache.pageCompilers[page](req, buildId, req.params), 
+                            await cache.pageCompilers[page](req, buildId, res, req.params), 
                             buildId, 
-                            true
+                            req,
+                            res,
+                            false
                         )
 
                         res.write(struct)
@@ -529,8 +556,10 @@ async function SapsarCompiler(page, req, res, dynamic=false){
                                 
                     const struct = await RPS(
                         page, 
-                        await cache.pageCompilers[page](req, buildId, req.params),
-                        buildId
+                        await cache.pageCompilers[page](req, buildId, res, req.params),
+                        buildId,
+                        req,
+                        res,
                     )
                     
                     res.write(struct)
@@ -627,8 +656,10 @@ async function SapsarUnknownPageHandler(page, req, res){
 
         const struct = await RPS(
             page, 
-            await cache.pageCompilers[foundPath](req, buildId, req.params), 
-            buildId
+            await cache.pageCompilers[foundPath](req, buildId, res, req.params), 
+            buildId,
+            req,
+            res
         )
         res.write(struct)
 
@@ -695,7 +726,8 @@ module.exports = {
     CachePage,
     SapsarLoader,
     SapsarTouch,
-    building
+    building,
+    getHTML
 }
 
 
