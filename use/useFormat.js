@@ -1,6 +1,7 @@
 const {
     getFormat
 } = require("../app/app");
+const { cache } = require("../util/SapsarCompiler")
 const { getBuildStatus } = require("../util/SapsarCompiler");
 
 /**

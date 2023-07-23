@@ -492,7 +492,7 @@ async function SapsarCompiler(page, req, res, dynamic=false){
                         //Render page
                         let struct = await RPS(
                             page, 
-                            await cache.pageCompilers[page](req, buildId, res, req.params), 
+                            await cache.pageCompilers[page](req, res, buildId, req.params), 
                             buildId, 
                             req,
                             res,
@@ -556,7 +556,7 @@ async function SapsarCompiler(page, req, res, dynamic=false){
                                 
                     const struct = await RPS(
                         page, 
-                        await cache.pageCompilers[page](req, buildId, res, req.params),
+                        await cache.pageCompilers[page](req, res, buildId, req.params),
                         buildId,
                         req,
                         res,
@@ -656,7 +656,7 @@ async function SapsarUnknownPageHandler(page, req, res){
 
         const struct = await RPS(
             page, 
-            await cache.pageCompilers[foundPath](req, buildId, res, req.params), 
+            await cache.pageCompilers[foundPath](req, res, buildId, req.params), 
             buildId,
             req,
             res
