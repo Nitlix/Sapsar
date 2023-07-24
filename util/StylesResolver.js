@@ -108,6 +108,8 @@ const conversions = {
     outlineWidth: "outline-width",
     overflowX: "overflow-x",
     overflowY: "overflow-y",
+    objectFit: "object-fit",
+    objectPosition: "object-position",
     
     paddingBottom: "padding-bottom",
     paddingLeft: "padding-left",
