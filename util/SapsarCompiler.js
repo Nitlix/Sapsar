@@ -485,14 +485,20 @@ async function SapsarCompiler(page, req, res, dynamic=false){
                         return;
                     }
                     else {
-                        res.setHeader('Content-Type', 'text/html')
+                        
 
                         const buildId = createUniqueBuild()
 
                         //Render page
+                        const pageRender = await cache.pageCompilers[page](req, res, buildId, req.params)
+
+                        if (!pageRender) return;
+                        res.setHeader('Content-Type', 'text/html')
+
+
                         let struct = await RPS(
                             page, 
-                            await cache.pageCompilers[page](req, res, buildId, req.params), 
+                            pageRender, 
                             buildId, 
                             req,
                             res,
@@ -554,12 +560,18 @@ async function SapsarCompiler(page, req, res, dynamic=false){
                 else {
                     const buildId = createUniqueBuild(res)
                                 
-                    const struct = await RPS(
-                        page, 
-                        await cache.pageCompilers[page](req, res, buildId, req.params),
-                        buildId,
+                    const pageRender = await cache.pageCompilers[page](req, res, buildId, req.params)
+
+                    if (!pageRender) return;
+                    res.setHeader('Content-Type', 'text/html')
+
+                    let struct = await RPS(
+                    page, 
+                        pageRender, 
+                        buildId, 
                         req,
                         res,
+                        false
                     )
                     
                     res.write(struct)
@@ -654,13 +666,21 @@ async function SapsarUnknownPageHandler(page, req, res){
         
         const buildId = createUniqueBuild(res)
 
-        const struct = await RPS(
+        const pageRender = await cache.pageCompilers[foundPath](req, res, buildId, req.params)
+
+        if (!pageRender) return;
+        res.setHeader('Content-Type', 'text/html')
+
+
+        let struct = await RPS(
             page, 
-            await cache.pageCompilers[foundPath](req, res, buildId, req.params), 
-            buildId,
+            pageRender, 
+            buildId, 
             req,
-            res
+            res,
+            false
         )
+
         res.write(struct)
 
 
