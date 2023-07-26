@@ -11,6 +11,7 @@ const { createUniqueBuild, getBuildProcesses, removeBuild } = require("./ActiveB
 const fs = require("fs")
 const path = require("path")
 const Errors = require("./Errors")
+const { genChars } = require("./Random")
 
 
 let cache = {
@@ -79,6 +80,21 @@ async function ImportMiddleware(){
     }
 }
 
+function checkModal(modal, name){
+    if (cache[modal][name]){
+        return true;
+    }
+    return false;
+}
+
+
+function genRandomModal(modal) {
+    let name = genChars(12)
+    while (checkModal(modal, name)){
+        name = genChars(12)
+    }
+    return name;
+}
 
 
 function getHTML(component){
@@ -736,6 +752,8 @@ module.exports = {
     SapsarCompiler,
     SapsarUnknownPageHandler,
     cache,
+    genRandomModal,
+    checkModal,
     ImportMiddleware,
     exportCache,
     importCache,
