@@ -1,4 +1,4 @@
-const { cache, getBuildStatus, getProductionStatus } = require('../util/SapsarCompiler');
+const { cache, getProductionStatus, genRandomModal } = require('../util/SapsarCompiler');
 
 const CleanCSS = require('clean-css');
 const CSSOptimiser = new CleanCSS({});
@@ -10,21 +10,21 @@ const CSSOptimiser = new CleanCSS({});
  * @description The backbone for your styles. Your styles are imported and stored for production, and can be imported in any way using other functions.
  */
 async function useMCSS(code, preferredStore="*") {
-    if (getBuildStatus()) {
-        const production = getProductionStatus();
-
-        if (production){
-            code = CSSOptimiser.minify(code).styles
-        }
-
-        if (preferredStore === '*') {
-            cache.css['*'] += code;
-        } else {
-            cache.css[preferredStore] = code;
-        }
-        
-        return preferredStore;
+    if (getProductionStatus()){
+        code = CSSOptimiser.minify(code).styles
     }
+
+    //random name
+    if (preferredStore === "!"){
+        preferredStore = genRandomModal();
+    }
+
+    if (preferredStore === '*') {
+        cache.css['*'] += code;
+    } else {
+        cache.css[preferredStore] = code;
+    }
+    
     return preferredStore;
 }
 

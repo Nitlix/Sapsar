@@ -1,4 +1,4 @@
-const { cache, getBuildStatus, getProductionStatus } = require('../util/SapsarCompiler');
+const { cache, getProductionStatus, genRandomModal } = require('../util/SapsarCompiler');
 const UglifyJS = require('uglify-js');
 
 /**
@@ -8,24 +8,24 @@ const UglifyJS = require('uglify-js');
  * @description The backbone for your scripts. Your scripts are imported and stored for production, and can be imported in any way using other functions.
  */
 async function useMJS(code, preferredStore="*") {
-    if (getBuildStatus()) {
-        const production = getProductionStatus();
+    code = code.toString();
+    code = code.substring(code.indexOf("{") + 1, code.lastIndexOf("}")).toString();
 
-        code = code.toString();
-        code = code.substring(code.indexOf("{") + 1, code.lastIndexOf("}")).toString();
-
-        if (production){
-            code = UglifyJS.minify(code).code;
-        }
-
-        if (preferredStore === '*') {
-            cache.js['*'] += code;
-        } else {
-            cache.js[preferredStore] = code;
-        }
-        
-        return preferredStore;
+    //random name
+    if (preferredStore === "!"){
+        preferredStore = genRandomModal();
     }
+
+    if (getProductionStatus()){
+        code = UglifyJS.minify(code).code;
+    }
+
+    if (preferredStore === '*') {
+        cache.js['*'] += code;
+    } else {
+        cache.js[preferredStore] = code;
+    }
+    
     return preferredStore;
 }
 
