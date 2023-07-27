@@ -7,13 +7,13 @@ const UglifyJS = require('uglify-js');
  * @returns {string} The name of the JS component that was stored, so you can then import it using ActiveJS() or LoadJS(). 
  * @description The backbone for your scripts. Your scripts are imported and stored for production, and can be imported in any way using other functions.
  */
-async function useMJS(code, preferredStore="*") {
+function useMJS(code, preferredStore="*") {
     code = code.toString();
     code = code.substring(code.indexOf("{") + 1, code.lastIndexOf("}")).toString();
 
     //random name
     if (preferredStore === "!"){
-        preferredStore = genRandomModal();
+        preferredStore = genRandomModal("js");
     }
 
     if (getProductionStatus()){

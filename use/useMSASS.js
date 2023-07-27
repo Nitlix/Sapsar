@@ -8,7 +8,7 @@ const sass = require('sass');
  * @returns {string} The name of the CSS component that was stored, so you can then import it using ActiveCSS() or LoadCSS(). 
  * @description The backbone for your styles. Your styles are imported and stored for production, and can be imported in any way using other functions.
  */
-async function useMSASS(code, preferredStore){
+function useMSASS(code, preferredStore){
     if (getProductionStatus()){
         code = sass.compileString(code, {style: "compressed"}).css.toString()
     }
@@ -18,7 +18,7 @@ async function useMSASS(code, preferredStore){
 
     //random name
     if (preferredStore === "!"){
-        preferredStore = genRandomModal();
+        preferredStore = genRandomModal("css");
     }
 
 
