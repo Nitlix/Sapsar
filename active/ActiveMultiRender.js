@@ -6,7 +6,7 @@ const { addProcess } = require("../util/ActiveBuild")
  * @param {string} build Build ID passed down to your page to use for this render.
  * @description This function is used to return HTML content after your initial content has been streamed to the client, meaning that if there is content which takes time to load, you can use this to replace it manually.
  */
-function ActiveRender(func, args, build){
+function ActiveMultiRender(func, args, build){
     addProcess(
         build,
         async ()=> {
@@ -16,4 +16,4 @@ function ActiveRender(func, args, build){
     )
 }
 
-module.exports = ActiveRender;
+module.exports = ActiveMultiRender;

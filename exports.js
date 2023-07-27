@@ -2,6 +2,7 @@ module.exports = {
     ActiveCSS: require('./active/ActiveCSS'),
     ActiveHead: require('./active/ActiveHead'),
     ActiveJS: require('./active/ActiveJS'),
+    ActiveRender: require('./active/ActiveRender'),
     ActiveMultiRender: require('./active/ActiveMultiRender'),
     ActiveScript: require('./active/ActiveScript'),
     

@@ -9,7 +9,7 @@ const CSSOptimiser = new CleanCSS({});
  * @returns {string} The name of the CSS component that was stored, so you can then import it using ActiveCSS() or LoadCSS(). 
  * @description The backbone for your styles. Your styles are imported and stored for production, and can be imported in any way using other functions.
  */
-async function useMCSS(code, preferredStore="*") {
+function useMCSS(code, preferredStore="*") {
     if (getProductionStatus()){
         code = CSSOptimiser.minify(code).styles
     }
