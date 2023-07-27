@@ -1,6 +1,8 @@
 const fs = require('fs');
 const UglifyJS = require('uglify-js');
 const path = require('path');
+const Terser = require("terser");
+
 
 let copyright = `// Copyright © 2023 Sapsar S.T.
 // Under the managment and ownership of Nitlix S.T. All rights reserved.
@@ -33,7 +35,7 @@ function ScanDirectory(directoryPath) {
 }
 
 
-function ProcessFile(data){
+async function ProcessFile(data){
     //get anything between /** and */ and KEEP IT!
     
 
@@ -42,12 +44,9 @@ function ProcessFile(data){
     if (!instructions) instructions = "";
     else instructions = `\n${instructions}\n`
 
-    const code = UglifyJS.minify(
-        data, 
-        {
-            mangle: false 
-        }
-    ).code;
+    const code = (await Terser.minify(data, {
+        mangle: false
+    })).code;
 
     //now find the index of the space right between the first "async function" or the first "function"
 
@@ -71,7 +70,7 @@ async function main(){
         //if file ENDS with .js
         if(file.endsWith(".js") && !file.includes("node_modules") && !file.includes("inspector.js")){
             const data = await fs.readFileSync(file, 'utf8').toString();
-            const finalCode = ProcessFile(data);
+            const finalCode = await ProcessFile(data);
             await fs.writeFileSync(file, finalCode, 'utf8');
             console.log(`Processed ${file}`);
         }

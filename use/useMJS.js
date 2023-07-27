@@ -13,7 +13,7 @@ async function useMJS(code, preferredStore="*") {
 
     //random name
     if (preferredStore === "!"){
-        preferredStore = genRandomModal();
+        preferredStore = genRandomModal("js");
     }
 
     if (getProductionStatus()){
