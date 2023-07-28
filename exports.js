@@ -1,45 +1,76 @@
-module.exports = {
-    ActiveCSS: require('./active/ActiveCSS'),
-    ActiveHead: require('./active/ActiveHead'),
-    ActiveJS: require('./active/ActiveJS'),
-    ActiveRender: require('./active/ActiveRender'),
-    ActiveMultiRender: require('./active/ActiveMultiRender'),
-    ActiveScript: require('./active/ActiveScript'),
-    
-    Combine: require('./basic/Combine'),
-    Link: require('./basic/Link'),
-    MergeProps: require('./basic/MergeProps'),
-    ParseArgs: require('./basic/ParseArgs'),
+const ActiveCSS=require("./active/ActiveCSS");
+const ActiveHead=require("./active/ActiveHead");
+const ActiveJS=require("./active/ActiveJS");
+const ActiveRender=require("./active/ActiveRender");
+const ActiveMultiRender=require("./active/ActiveMultiRender");
+const ActiveScript=require("./active/ActiveScript");
+const Combine=require("./basic/Combine");
+const Link=require("./basic/Link");
+const MergeProps=require("./basic/MergeProps");
+const ParseArgs=require("./basic/ParseArgs");
+const importCSS=require("./import/importCSS");
+const importJS=require("./import/importJS");
+const importMVar=require("./import/importMVar");
+const importVar=require("./import/importVar");
+const insertHTML=require("./insert/insertHTML");
+const LoadCSS=require("./load/LoadCSS");
+const LoadJS=require("./load/LoadJS");
+const reportCSS=require("./report/reportCSS");
+const reportJS=require("./report/reportJS");
+const RegisterTouchAction=require("./touch/RegisterTouchAction");
+const useCSS=require("./use/useCSS");
+const useFormat=require("./use/useFormat");
+const useFormatter=require("./use/useFormatter");
+const useHead=require("./use/useHead");
+const useJS=require("./use/useJS");
+const useMarkdown=require("./use/useMarkdown");
+const useMCSS=require("./use/useMCSS");
+const useMJS=require("./use/useMJS");
+const useMSASS=require("./use/useMSASS");
+const useNoHelp=require("./use/useNoHelp");
+const usePlugin=require("./use/usePlugin");
+const useProduction=require("./use/useProduction");
+const useSASS=require("./use/useSASS");
+const useStaticPage=require("./use/useStaticPage");
+const launchpad=require("./launchpad");
+const html=require("./base/index")
 
-    importCSS: require('./import/importCSS'),
-    importJS: require('./import/importJS'),
-    importMVar: require('./import/importMVar'),
-    importVar: require('./import/importVar'),
-
-    insertHTML: require('./insert/insertHTML'),
-
-    LoadCSS: require('./load/LoadCSS'),
-    LoadJS: require('./load/LoadJS'),
-
-    reportCSS: require('./report/reportCSS'),
-    reportJS: require('./report/reportJS'),
-
-    RegisterTouchAction: require('./touch/RegisterTouchAction'),
-
-    useCSS: require('./use/useCSS'),
-    useFormat: require('./use/useFormat'),
-    useFormatter: require('./use/useFormatter'),
-    useHead: require('./use/useHead'),
-    useJS: require('./use/useJS'),
-    useMarkdown: require('./use/useMarkdown'),
-    useMCSS: require('./use/useMCSS'),
-    useMJS: require('./use/useMJS'),
-    useMSASS: require('./use/useMSASS'),
-    useNoHelp: require('./use/useNoHelp'),
-    usePlugin: require('./use/usePlugin'),
-    useProduction: require('./use/useProduction'),
-    useSASS: require('./use/useSASS'),
-    useStaticPage: require('./use/useStaticPage'),
-
-    launchpad: require('./launchpad')
+module.exports={
+    ActiveCSS,
+    ActiveHead,
+    ActiveJS,
+    ActiveRender,
+    ActiveMultiRender,
+    ActiveScript,
+    Combine,
+    Link,
+    MergeProps,
+    ParseArgs,
+    importCSS,
+    importJS,
+    importMVar,
+    importVar,
+    insertHTML,
+    LoadCSS,
+    LoadJS,
+    reportCSS,
+    reportJS,
+    RegisterTouchAction,
+    useCSS,
+    useFormat,
+    useFormatter,
+    useHead,
+    useJS,
+    useMarkdown,
+    useMCSS,
+    useMJS,
+    useMSASS,
+    useNoHelp,
+    usePlugin,
+    useProduction,
+    useSASS,
+    useStaticPage,
+    launchpad,
+    html,
+    base: html
 }

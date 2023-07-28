@@ -12,9 +12,10 @@
     "./ship/*": "./ship/*.js",
     "./import/*": "./import/*.js",
     "./insert/*": "./insert/*.js",
-    "./launchpad": "./launchpad.js"
+    "./launchpad": "./launchpad.js",
+    ".": "./exports.js"
   },
-  "version": "0.3.9",
+  "version": "0.4.0",
   "description": "A lightspeed⚡, zero front-end JS📦 focused backend JS framework packed with customised rendering, dynamic routing and a lot more. Built for the cool kids.",
   "main": "exports.js",
   "scripts": {},
