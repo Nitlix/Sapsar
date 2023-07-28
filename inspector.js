@@ -6,6 +6,7 @@ const Terser = require("terser");
 
 let copyright = `// Copyright © 2023 Sapsar S.T.
 // Under the managment and ownership of Nitlix S.T. All rights reserved.
+// Path: [FILENAME]
 
 `
 
@@ -35,7 +36,7 @@ function ScanDirectory(directoryPath) {
 }
 
 
-async function ProcessFile(data){
+async function ProcessFile(data, name){
     //get anything between /** and */ and KEEP IT!
     
 
@@ -56,7 +57,7 @@ async function ProcessFile(data){
     let finalCode = code.slice(0, index) + instructions + code.slice(index);
 
     //add copyright 
-    finalCode = copyright + finalCode;
+    finalCode = copyright.replace('[FILENAME]', name) + finalCode;
 
     return finalCode;
 }
@@ -70,7 +71,7 @@ async function main(){
         //if file ENDS with .js
         if(file.endsWith(".js") && !file.includes("node_modules") && !file.includes("inspector.js")){
             const data = await fs.readFileSync(file, 'utf8').toString();
-            const finalCode = await ProcessFile(data);
+            const finalCode = await ProcessFile(data, file);
             await fs.writeFileSync(file, finalCode, 'utf8');
             console.log(`Processed ${file}`);
         }
