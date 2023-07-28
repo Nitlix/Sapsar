@@ -33,6 +33,7 @@ const useProduction=require("./use/useProduction");
 const useSASS=require("./use/useSASS");
 const useStaticPage=require("./use/useStaticPage");
 const launchpad=require("./launchpad");
+const html=require("./base/index")
 
 module.exports={
     ActiveCSS,
@@ -69,5 +70,7 @@ module.exports={
     useProduction,
     useSASS,
     useStaticPage,
-    launchpad
+    launchpad,
+    html,
+    base: html
 }
