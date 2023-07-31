@@ -38,6 +38,10 @@ const Log = {
         console.log(`${colors.bold} * ${colors.bgorange} sapsar vyrbo ${colors.reset} ${message}`)
     },
 
+    ssg: (message)=>{
+        console.log(`${colors.bold} * ${colors.bgorange} sapsar ssg ${colors.reset} ${message}`)
+    },
+
     serve: (port)=>{
         Log.sapsar(`Ready to serve on ${colors.bgpurple}${colors.bold}[http://localhost:${port}]${colors.reset}! Any debugging or errors will be logged below.`)
     },

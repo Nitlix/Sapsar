@@ -3,6 +3,9 @@ const {
     VERSION
 } = require('./formats/INFO.js')
 Log.sapsar(`Starting Sapsar ${VERSION}...`)
+const { handleAllSSG } = require('./app/app');
+
+
 
 
 // Main Sapsar Data
@@ -241,6 +244,8 @@ async function launchpad(command="dev", port = 3000) {
 
     //compiler will process whether to export it or not
     await exportCache();
+
+    await handleAllSSG();
 
     if (port) {
         let success;

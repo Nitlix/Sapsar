@@ -32,6 +32,7 @@ const usePlugin=require("./use/usePlugin");
 const useProduction=require("./use/useProduction");
 const useSASS=require("./use/useSASS");
 const useStaticPage=require("./use/useStaticPage");
+const useSSG = require("./use/useSSG");
 const launchpad=require("./launchpad");
 const html=require("./base/index")
 
@@ -70,6 +71,7 @@ module.exports={
     useProduction,
     useSASS,
     useStaticPage,
+    useSSG,
     launchpad,
     html,
     base: html

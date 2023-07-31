@@ -195,8 +195,10 @@ function getActivePlugins(page){
 
 
 
-async function RPS(page, content, build, req, res, static=false){
+async function RPS(page, content, build, req, res, static=false, ssg=false){
     const render = body({class: "sapsar-dom"}, content)
+
+    const SSGResources = [];
 
   
     const ActiveCSS = getComplexLevel(render,';ActiveCSS;', ';/ActiveCSS;')
@@ -377,6 +379,12 @@ async function RPS(page, content, build, req, res, static=false){
 
         if (!cache.loaders[cssBundleName]) cache.loaders[cssBundleName] = LoadCSSCode
 
+        //add to SSG Resources
+        SSGResources.push({
+            path: `/_sapsar/loader/${cssBundleName}`,
+            data: LoadCSSCode
+        })
+
         loadBundle += `<link rel="stylesheet" data-lcss href="/_sapsar/loader/${build}.css" />`
     }
 
@@ -395,6 +403,12 @@ async function RPS(page, content, build, req, res, static=false){
         
         if (!cache.loaders[jsBundleName]) cache.loaders[jsBundleName] = LoadJSCode
 
+        //add to SSG Resources
+        SSGResources.push({
+            path: `/_sapsar/loader/${jsBundleName}`,
+            data: LoadJSCode
+        })
+
 
         loadBundle += `<script data-ljs src="/_sapsar/loader/${build}.js"></script>`
     }
@@ -411,7 +425,9 @@ async function RPS(page, content, build, req, res, static=false){
     
     //return final structure
 
-    return `<!DOCTYPE html><html lang="en">${head(
+    
+
+    const finish = `<!DOCTYPE html><html lang="en">${head(
         `<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />`,
         `<script data-sapsar>const build = {id: "${build}"}</script>`,
         ActiveHeadCode,
@@ -427,6 +443,17 @@ async function RPS(page, content, build, req, res, static=false){
     
     //Final body render below
     )}${finalRender}</html>`
+
+    if (!ssg){
+        return finish
+    }
+
+    // Else return SSG
+
+    return {
+        page: finish,
+        resources: SSGResources
+    }
 }
 
 
@@ -454,7 +481,7 @@ async function CachePage(page) {
 
 
 // Compiler Code
-async function SapsarCompiler(page, req, res, dynamic=false){
+async function SapsarCompiler(page, req, res, dynamic=false, ssg=false){
 
     const middleWareStop = await SapsarMiddleware(req, res)
 
@@ -582,15 +609,25 @@ async function SapsarCompiler(page, req, res, dynamic=false){
                     res.setHeader('Content-Type', 'text/html')
 
                     let struct = await RPS(
-                    page, 
+                        page, 
                         pageRender, 
                         buildId, 
                         req,
                         res,
-                        false
+                        false,
+                        ssg
                     )
+
+                    if (ssg){
+                        res.write(struct.page)
+                        struct.resources.forEach(resource => {
+                            res.setSSGResource(resource.path, resource.data)
+                        })
+                    }
+                    else {
+                        res.write(struct)
+                    }
                     
-                    res.write(struct)
 
                     //post render
                     //run active build scripts
@@ -739,7 +776,10 @@ const SAPSAR_CACHE_LOCATION = '../../../sapsar.json'
 async function exportCache(){
     if (!building) return;
     await fs.writeFileSync(path.join(__dirname, SAPSAR_CACHE_LOCATION), JSON.stringify(cache))
+    Log.compiler("Cache exported to sapsar.json")
 }
+
+
 
 async function importCache(){
     cache = JSON.parse(
