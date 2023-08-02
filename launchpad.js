@@ -24,7 +24,6 @@ const {
 
 // Other imports
 const ScanDirectory = require('./util/ScanDirectory.js');
-const ListCycle = require('lixtools/list/cycle')
 const SapsarErrorPage = require('./util/SapsarErrorPage.js');
 const createServer = require('./util/CreateServer.js')
 const path = require('path');
@@ -135,7 +134,7 @@ async function launchpad(command="dev", port = 3000) {
 
             let stop = false;
 
-            ListCycle(split, (query) => {
+            split.forEach(query => {
                 if (all.includes(query)) {
                     stop = true;
                 }
