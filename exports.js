@@ -2,7 +2,6 @@ const ActiveCSS=require("./active/ActiveCSS");
 const ActiveHead=require("./active/ActiveHead");
 const ActiveJS=require("./active/ActiveJS");
 const ActiveRender=require("./active/ActiveRender");
-const ActiveMultiRender=require("./active/ActiveMultiRender");
 const ActiveScript=require("./active/ActiveScript");
 const Combine=require("./basic/Combine");
 const Link=require("./basic/Link");
@@ -26,12 +25,14 @@ const useJS=require("./use/useJS");
 const useMarkdown=require("./use/useMarkdown");
 const useMCSS=require("./use/useMCSS");
 const useMJS=require("./use/useMJS");
+const useLang=require("./use/useLang");
 const useMSASS=require("./use/useMSASS");
 const useNoHelp=require("./use/useNoHelp");
 const usePlugin=require("./use/usePlugin");
 const useProduction=require("./use/useProduction");
 const useSASS=require("./use/useSASS");
 const useStaticPage=require("./use/useStaticPage");
+const useState=require("./use/useState");
 const useSSG = require("./use/useSSG");
 const launchpad=require("./launchpad");
 const html=require("./base/index")
@@ -41,7 +42,6 @@ module.exports={
     ActiveHead,
     ActiveJS,
     ActiveRender,
-    ActiveMultiRender,
     ActiveScript,
     Combine,
     Link,
@@ -65,12 +65,14 @@ module.exports={
     useMarkdown,
     useMCSS,
     useMJS,
+    useLang,
     useMSASS,
     useNoHelp,
     usePlugin,
     useProduction,
     useSASS,
     useStaticPage,
+    useState,
     useSSG,
     launchpad,
     html,

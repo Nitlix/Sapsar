@@ -4,7 +4,7 @@ const ParseArgs = require('../basic/ParseArgs');
 /**
  * @param {string} content The content to put in the head. This acts like a normal-behaving sapsar element.
  * Please note that the prop "page" (without ".js" but with a path relative to "pages") is required.
- * @description This function is used to cache the content stored in the <head> for a certain page all the time.
+ * @description This function is used to cache the content stored in the head element for a certain page all the time.
  */
 async function useHead(...args){    
     const { content, props } = ParseArgs(args)

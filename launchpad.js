@@ -27,13 +27,10 @@ const ScanDirectory = require('./util/ScanDirectory.js');
 const SapsarErrorPage = require('./util/SapsarErrorPage.js');
 const createServer = require('./util/CreateServer.js')
 const path = require('path');
-const {
-    SAPSAR_LOADER_PATH
-} = require('./formats/SAPSAR_LOADER.js');
-const {
-    SAPSAR_TOUCH_PATH
-} = require('./formats/SAPSAR_TOUCH.js');
+
 const Errors = require('./util/Errors.js');
+
+
 
 
 const pagesDirectory = path.join(__dirname, '../../pages');
@@ -60,7 +57,7 @@ async function launchpad(command="dev", port = 3000) {
         try {
             await importCache()
         } catch (e) {
-            Log.sapsar("No critical file cache file was found (at root/sapsar.js). If this code is in a deployment, expect build errors.")
+            Log.sapsar("No critical file cache file was found (at root/sapsar.json). If this code is in a deployment, expect build errors.")
             setBuildStatus(true)
         }
 
@@ -108,7 +105,7 @@ async function launchpad(command="dev", port = 3000) {
 
 
     Log.sapsar("Mapping your pages...")
-    const NormalPages = [];
+    const Pages = [];
     const DynamicRoutes = [];
 
     // Map pages into dynamic and normal
@@ -150,7 +147,7 @@ async function launchpad(command="dev", port = 3000) {
                 access: AccessName
             })
         } else {
-            NormalPages.push({
+            Pages.push({
                 original: OriginalName,
                 access: AccessName
             })
@@ -159,22 +156,74 @@ async function launchpad(command="dev", port = 3000) {
 
 
 
+    // add dynamic pages on top of normal pages
 
-    // Router for normal pages
+    for (let x = 0; x < DynamicRoutes.length; x++) {
+        const data = DynamicRoutes[x];
+        Pages.push(data)
+    }
 
-    for (let x = 0; x < NormalPages.length; x++) {
-        const data = NormalPages[x];
+
+    // BACKEND MAP ALL PAGES TO THE ROUTERS
+
+    for (let x = 0; x < Pages.length; x++) {
+        const data = Pages[x];
 
         // route
         try {
             //generate cache
-            await CachePage(data.original)
+            const imports = await CachePage(data.original)
 
-            app.get(`/${data.access}`, async (req, res) => {
-                await SapsarCompiler(data.original, req, res)
-                return
+            Object.keys(imports).forEach(key => {
+                switch (key) {
+                    case "GET":
+                        app.get(`/${data.access}`, async (req, res) => {
+                            await SapsarCompiler(data.original, req, res, "GET")
+                            return
+                        })
+                        break;
+                    case "POST":
+                        app.post(`/${data.access}`, async (req, res) => {
+                            await SapsarCompiler(data.original, req, res, "POST")
+                            return
+                        })
+                        break;
+                    case "PUT":
+                        app.put(`/${data.access}`, async (req, res) => {
+                            await SapsarCompiler(data.original, req, res, "PUT")
+                            return
+                        })
+                        break;
+                    case "DELETE":
+                        app.delete(`/${data.access}`, async (req, res) => {
+                            await SapsarCompiler(data.original, req, res, "DELETE")
+                            return
+                        })
+                        break;
+                    case "PATCH":
+                        app.patch(`/${data.access}`, async (req, res) => {
+                            await SapsarCompiler(data.original, req, res, "PATCH")
+                            return
+                        })
+                        break;
+                    case "OPTIONS":
+                        app.options(`/${data.access}`, async (req, res) => {
+                            await SapsarCompiler(data.original, req, res, "OPTIONS")
+                            return
+                        })
+                        break;
+                    case "HEAD":
+                        app.head(`/${data.access}`, async (req, res) => {
+                            await SapsarCompiler(data.original, req, res, "HEAD")
+                            return
+                        })
+                        break;
+                    default:
+                        Log.router(`The main router could not map this method: ${key}. Please change your routing format so that the methods being accessed are valid.`)                    
+                }
             })
-        } catch (e) {
+        } 
+        catch (e) {
             //error then new line and then stack
             Log.savePageFunctionError(data.original, e)
 
@@ -193,41 +242,16 @@ async function launchpad(command="dev", port = 3000) {
 
 
 
-    for (let x = 0; x < DynamicRoutes.length; x++) {
-        const data = DynamicRoutes[x];
 
-        //route dynamic
-
-        try {
-            //generate cache
-            await CachePage(data.original)
-
-            app.get(`/${data.access}`, async (req, res) => {
-                await SapsarCompiler(data.original, req, res, true)
-                return
-            })
-        } catch (e) {
-            Log.savePageFunctionError(data.original, e)
-
-            app.get(`/${data.access}`, async (req, res) => {
-                res.status(400).end(await SapsarErrorPage(
-                    `Something went wrong caching page function: ${data.original}`,
-                    e.name,
-                    e.message,
-                    e.stack
-                ))
-                return
-            })
-        }
-
-
-    }
-
-    app.get(`${SAPSAR_LOADER_PATH}:id`, async (req, res) => {
+    app.get(`/_sapsar/loader/:id`, async (req, res) => {
         SapsarLoader(req.params.id, res)
     })
 
-    app.post(`${SAPSAR_TOUCH_PATH}:id`, async (req, res) => {
+    // ====================================
+    //CROUTER DEFINED IN CREATE SERVER
+    // ====================================
+
+    app.post(`/_sapsar/touch/:id`, async (req, res) => {
         await SapsarTouch(req.params.id, null, res, res)
     })
 

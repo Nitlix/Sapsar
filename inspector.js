@@ -5,7 +5,7 @@ const Terser = require("terser");
 
 
 let copyright = `// Copyright © 2023 Sapsar S.T.
-// Under the managment and ownership of Nitlix S.T. All rights reserved.
+// The framework is under the managment and ownership of Nitlix S.T.
 // Path: [FILENAME]
 
 `

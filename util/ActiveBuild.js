@@ -1,49 +1,57 @@
 const { genChars } = require("./Random")
 
-const builds = {
+const processes = {
 
 }
 
 
-function createUniqueBuild(){
-    let id = genChars(12)
-
-    while (builds[id]){
-        id = genChars(12)
+function addProcess(process, args){
+    let name = genChars(10)
+    while (processes[name]) {
+        name = genChars(10)
     }
-
-    builds[id] = {
-        processes: []
-    }
-
-    return id
-}
-
-
-function removeBuild(build){
-    delete builds[build]
-}
-
-
-function addProcess(build, process, args){
-    builds[build].processes.push({
+    processes[name] = {
         process,
         args
+    }
+    return name
+}
+
+
+function getActiveBuildProcess(processName){
+    if (!processes[processName]) return false;
+    return processes[processName]
+}
+
+function deleteActiveBuildProcess(processName){
+    delete processes[processName]
+}
+
+async function handleAllBuildProcesses(processList, callback){
+    for (let x = 0; x < processList.length; x++) {
+        const process = processList[x];
+        if (processes[process]) {
+            const render = (await processes[process].process(processes[process].args)).toString()
+            callback(render)
+        }
+    }
+
+    new Promise((resolve, reject)=>{
+        processList.forEach(process=>{
+            deleteActiveBuildProcess(process)
+        })
+        resolve()
     })
-}
 
-function getBuild(id){
-    return builds[id]
+    return;
 }
+            
 
-function getBuildProcesses(build){
-    return builds[build].processes
-}
+
 
 module.exports = {
-    createUniqueBuild,
-    removeBuild,
     addProcess,
-    getBuild,
-    getBuildProcesses
+    getActiveBuildProcess,
+    deleteActiveBuildProcess,
+    handleAllBuildProcesses
 }

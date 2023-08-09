@@ -4,6 +4,7 @@ const writeFileModel = require("../util/writeFileModel");
 const checkFileModal = require("../util/checkFileModal");
 const writeFolder = require("../util/writeFolder");
 const Log = require("../util/Log");
+const { genChars } = require("../util/Random");
 
 const app = {
     formats: {
@@ -19,11 +20,13 @@ const app = {
         ssgData: {
 
         }
-    }
+    },
+
+    
 }
 
 
-
+    
 
 class VirtualReq {
     constructor(url){
@@ -148,6 +151,11 @@ async function handleAllSSG(){
     })
 
 }
+
+
+
+
+
 
 module.exports = {
     app,
