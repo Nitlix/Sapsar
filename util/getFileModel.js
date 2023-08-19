@@ -1,13 +1,25 @@
 const fs = require('fs')
 const path = require('path')
 
+
+const networkCache = {
+
+}
+
 async function getFileModel(filePath, model="styles") {
     if (filePath.startsWith("http://") || filePath.startsWith("https://")){
+        //Check in network cache
+        if (networkCache[filePath] && !filePath.includes("sapsar:no-cache")){
+            return networkCache[filePath]
+        }
+
         const res = await fetch(filePath)
         if (!res.ok){
             throw new Error(`At getFileModel() Call, the file "${filePath}" was not found.`)
         }
-        return await res.text()
+        const data = await res.text()
+        networkCache[filePath] = data
+        return data
     }
 
     try {

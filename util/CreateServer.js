@@ -23,6 +23,7 @@ function createServer(useCors = "*") {
         next();
     });
 
+    app.use('/_sapsar/crouter.js', express.static(path.join(__dirname, '../formats/crouter.js')))
 
     //use public files
     
